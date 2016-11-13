@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Implementation-Vendor: Pivotal Software, Inc.
+Implementation-Title: SemNet API
+Implementation-Version: 1.1.0
+Implementation-Vendor-Id: com.boun.swe
+Build-Jdk: 1.7.0
+Built-By: mehmetce
+Created-By: Maven Integration for Eclipse
+Main-Class: com.boun.swe.semnet.api.SemNetApiApplication
+
