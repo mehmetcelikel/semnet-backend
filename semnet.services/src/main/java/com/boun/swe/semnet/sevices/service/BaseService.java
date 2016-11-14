@@ -16,16 +16,14 @@ import com.boun.swe.semnet.commons.type.ErrorCode;
 
 public abstract class BaseService {
 
-    @Autowired
-    protected Validator validator;
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     protected void validateFields(Object request) throws SemNetValidationException {
-        Set<? extends ConstraintViolation<?>> constraintViolations = validator.validate(request);
-        if (constraintViolations.size() > 0) {
-            throw new SemNetValidationException(constraintViolations);
-        }
+//        Set<? extends ConstraintViolation<?>> constraintViolations = validator.validate(request);
+//        if (constraintViolations.size() > 0) {
+//            throw new SemNetValidationException(constraintViolations);
+//        }
     }
     
     protected void validate(BaseRequest request) throws SemNetRuntimeException{

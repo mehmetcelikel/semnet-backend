@@ -1,0 +1,13 @@
+<DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head><title>Pink Elephant</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+    <div class="complaint" style="bor">
+        <label><b>Şikayet Tipi:</b> ${complaint.object.type}</label><br>
+        <label><b>ID: </b>${complaint.object.id}</label><br>
+        <label><b>İçerik:</b> ${complaint.object.content}</label><br>
+    </div>
+</body>
+</html>
