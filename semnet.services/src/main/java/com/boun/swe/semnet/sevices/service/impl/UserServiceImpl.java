@@ -37,6 +37,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 	@Override
 	public CreateUserResponse create(CreateUserRequest request) {
 
+		validateFields(request);
+		
 		User user = userRepository.findByUsername(request.getUsername());
 		if(user != null){
 			throw new SemNetException(ErrorCode.DUPLICATE_USER);

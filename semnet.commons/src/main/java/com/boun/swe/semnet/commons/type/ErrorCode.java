@@ -6,6 +6,8 @@ public enum ErrorCode {
 
 	SUCCESS("Success", "0"),
 	
+	VALIDATION_ERROR("Validation has failed", "1000"),
+	
 	USER_NOT_FOUND("User not found", "100"),
 	DUPLICATE_USER("There is already a user with given username", "101"),
 	OPERATION_NOT_ALLOWED("Operation is not allowed for not authenticated users", "102"),

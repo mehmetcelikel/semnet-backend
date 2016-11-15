@@ -1,5 +1,7 @@
 package com.boun.swe.semnet.commons.data.response;
 
+import java.util.List;
+
 import com.boun.swe.semnet.commons.type.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -18,4 +20,8 @@ public class LoginResponse extends ActionResponse{
 		super(errorCode);
 	}
 	
+	public LoginResponse(ErrorCode code, List<ValidationError> errors) {
+		super(code);
+		setErrors(errors);
+	}
 }

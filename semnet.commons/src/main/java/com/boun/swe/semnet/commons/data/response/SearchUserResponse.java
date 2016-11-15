@@ -20,6 +20,11 @@ public class SearchUserResponse extends ActionResponse {
 		super(code);
 	}
 	
+	public SearchUserResponse(ErrorCode code, List<ValidationError> errors) {
+		super(code);
+		setErrors(errors);
+	}
+	
 	public void addUser(String id, String username, String firstname, String lastname){
 		if(userList == null){
 			userList = new ArrayList<UserObj>();

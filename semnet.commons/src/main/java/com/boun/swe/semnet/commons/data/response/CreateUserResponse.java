@@ -1,5 +1,7 @@
 package com.boun.swe.semnet.commons.data.response;
 
+import java.util.List;
+
 import com.boun.swe.semnet.commons.type.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -18,6 +20,11 @@ public class CreateUserResponse extends ActionResponse {
 	
 	public CreateUserResponse(ErrorCode code) {
 		super(code);
+	}
+	
+	public CreateUserResponse(ErrorCode code, List<ValidationError> errors) {
+		super(code);
+		setErrors(errors);
 	}
 	
 	public CreateUserResponse(ErrorCode code, String id, String username, String firstname, String lastname){

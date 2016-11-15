@@ -1,5 +1,11 @@
 package com.boun.swe.semnet.sevices.service;
 
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,10 +19,14 @@ public abstract class BaseService {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     protected void validateFields(Object request) throws SemNetException {
-//        Set<? extends ConstraintViolation<?>> constraintViolations = validator.validate(request);
-//        if (constraintViolations.size() > 0) {
-//            throw new SemNetValidationException(constraintViolations);
-//        }
+    	Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+
+        Set<? extends ConstraintViolation<?>> constraintViolations = validator.validate(request);
+        if (constraintViolations.size() > 0) {
+            SemNetException ex = new SemNetException(ErrorCode.VALIDATION_ERROR);
+            ex.setValidationError(constraintViolations);
+            throw ex;
+        }
     }
     
     protected void validate(BaseRequest request) throws SemNetException{

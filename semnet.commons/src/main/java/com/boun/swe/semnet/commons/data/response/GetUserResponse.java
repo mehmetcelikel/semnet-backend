@@ -1,5 +1,7 @@
 package com.boun.swe.semnet.commons.data.response;
 
+import java.util.List;
+
 import com.boun.swe.semnet.commons.type.ErrorCode;
 import com.boun.swe.semnet.commons.type.UserStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -19,5 +21,10 @@ public class GetUserResponse extends ActionResponse {
 
 	public GetUserResponse(ErrorCode code){
 		super(code);
+	}
+	
+	public GetUserResponse(ErrorCode code, List<ValidationError> errors) {
+		super(code);
+		setErrors(errors);
 	}
 }

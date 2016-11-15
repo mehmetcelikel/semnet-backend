@@ -53,7 +53,7 @@ public class UserController {
     		
     		logger.error("Error occured while running createUser service, code->" + e.getErrorCode());
     		
-    		return new CreateUserResponse(e.getErrorCode());
+    		return new CreateUserResponse(e.getErrorCode(), e.getErrors());
     		
     	}finally{
     		if(logger.isDebugEnabled()){
@@ -76,7 +76,7 @@ public class UserController {
     		
 			logger.error("Error occured while running updateUser service, code->" + e.getErrorCode());
 			
-    		return new ActionResponse(e.getErrorCode());
+    		return new ActionResponse(e.getErrorCode(), e.getErrors());
     		
 		}finally{
 			if(logger.isDebugEnabled()){
@@ -99,7 +99,7 @@ public class UserController {
     		
 			logger.error("Error occured while running authenticate service, code->" + e.getErrorCode());
 			
-    		return new LoginResponse(e.getErrorCode());
+    		return new LoginResponse(e.getErrorCode(), e.getErrors());
     		
     	}finally{
     		if(logger.isDebugEnabled()){
@@ -123,7 +123,7 @@ public class UserController {
     		
     		logger.error("Error occured while running logout service, code->" + e.getErrorCode());
 			
-    		return new ActionResponse(e.getErrorCode());
+    		return new ActionResponse(e.getErrorCode(), e.getErrors());
     		
     	}finally{
     		if(logger.isDebugEnabled()){
@@ -147,7 +147,7 @@ public class UserController {
     		
     		logger.error("Error occured while running resetPassword service, code->" + e.getErrorCode());
 			
-    		return new ActionResponse(e.getErrorCode());
+    		return new ActionResponse(e.getErrorCode(), e.getErrors());
     		
     	}finally{
     		if(logger.isDebugEnabled()){
@@ -171,7 +171,7 @@ public class UserController {
     		
     		logger.error("Error occured while running changePassword service, code->" + e.getErrorCode());
 			
-    		return new ActionResponse(e.getErrorCode());
+    		return new ActionResponse(e.getErrorCode(), e.getErrors());
     		
     	}finally{
     		if(logger.isDebugEnabled()){
@@ -195,7 +195,7 @@ public class UserController {
     		
     		logger.error("Error occured while running getUser service, code->" + e.getErrorCode());
 			
-    		return new GetUserResponse(e.getErrorCode());
+    		return new GetUserResponse(e.getErrorCode(), e.getErrors());
     		
     	}finally{
     		if(logger.isDebugEnabled()){
@@ -219,7 +219,7 @@ public class UserController {
     		
     		logger.error("Error occured while running searchUser service, code->" + e.getErrorCode());
 			
-    		return new SearchUserResponse(e.getErrorCode());
+    		return new SearchUserResponse(e.getErrorCode(), e.getErrors());
     		
     	}finally{
     		if(logger.isDebugEnabled()){
