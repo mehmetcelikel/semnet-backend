@@ -1,21 +1,28 @@
 package com.boun.swe.semnet.commons.exception;
 
-import com.boun.swe.semnet.commons.data.response.ErrorResponse;
-import com.boun.swe.semnet.commons.util.SemNetErrorBundle;
+import com.boun.swe.semnet.commons.type.ErrorCode;
 
 public class SemNetException extends RuntimeException {
 
-    private String key;
+	private static final long serialVersionUID = -156081897455499864L;
 
-    public SemNetException(String key){
-        this.key = key;
+	private ErrorCode errorCode;
+	private String additionalInfo;
+	
+    public SemNetException(ErrorCode errorCode){
+        this.errorCode = errorCode;
+    }
+    
+    public SemNetException(ErrorCode errorCode, String additionalInfo){
+        this.errorCode = errorCode;
+        this.additionalInfo = additionalInfo;
     }
 
-    public ErrorResponse getErrorResponse() {
-        ErrorResponse response = new ErrorResponse();
-        response.setErrorCode(SemNetErrorBundle.getErrorCode(key));
-        response.setApplicationMessage(SemNetErrorBundle.getApplicationErrorMessage(key));
-        response.setConsumerMessage(SemNetErrorBundle.getConsumerErrorMessage(key));
-        return response;
-    }
+    public ErrorCode getErrorCode() {
+		return errorCode;
+	}
+    
+    public String getAdditionalInfo() {
+		return additionalInfo;
+	}
 }

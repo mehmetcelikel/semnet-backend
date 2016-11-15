@@ -4,6 +4,8 @@ import java.text.MessageFormat;
 
 public enum ErrorCode {
 
+	SUCCESS("Success", "0"),
+	
 	USER_NOT_FOUND("User not found", "100"),
 	DUPLICATE_USER("There is already a user with given username", "101"),
 	OPERATION_NOT_ALLOWED("Operation is not allowed for not authenticated users", "102"),
@@ -18,6 +20,7 @@ public enum ErrorCode {
 	
 	private ErrorCode(String message, String errorCode) {
 		this.message = message;
+		this.code = errorCode;
 	}
 	
 	public String getMessage() {
@@ -26,6 +29,10 @@ public enum ErrorCode {
 	
 	public String getCode() {
 		return code;
+	}
+	
+	public String getFormattedCode() {
+		return "SNET_"+code;
 	}
 	
 	public String format(Object... args){

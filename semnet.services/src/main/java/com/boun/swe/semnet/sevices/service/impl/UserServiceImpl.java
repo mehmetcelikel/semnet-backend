@@ -14,10 +14,11 @@ import com.boun.swe.semnet.commons.data.request.CreateUserRequest;
 import com.boun.swe.semnet.commons.data.request.ResetPasswordRequest;
 import com.boun.swe.semnet.commons.data.request.UpdateUserRequest;
 import com.boun.swe.semnet.commons.data.response.ActionResponse;
+import com.boun.swe.semnet.commons.data.response.CreateUserResponse;
 import com.boun.swe.semnet.commons.data.response.GetUserResponse;
 import com.boun.swe.semnet.commons.data.response.LoginResponse;
 import com.boun.swe.semnet.commons.data.response.SearchUserResponse;
-import com.boun.swe.semnet.commons.exception.SemNetRuntimeException;
+import com.boun.swe.semnet.commons.exception.SemNetException;
 import com.boun.swe.semnet.commons.type.ErrorCode;
 import com.boun.swe.semnet.commons.type.UserStatus;
 import com.boun.swe.semnet.commons.util.KeyUtils;
@@ -34,16 +35,16 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private UserRepository userRepository;
 
 	@Override
-	public User create(CreateUserRequest request) {
+	public CreateUserResponse create(CreateUserRequest request) {
 
 		User user = userRepository.findByUsername(request.getUsername());
 		if(user != null){
-			throw new SemNetRuntimeException(400, ErrorCode.DUPLICATE_USER, "");
+			throw new SemNetException(ErrorCode.DUPLICATE_USER);
 		}
 
 		user = userRepository.save(mapUser(request));
 
-		return user;
+		return new CreateUserResponse(ErrorCode.SUCCESS, user.getId(), user.getUsername(), user.getFirstname(), user.getLastname());
 	}
 
 	@Override
@@ -53,12 +54,11 @@ public class UserServiceImpl extends BaseService implements UserService {
 		
 		User user = userRepository.findById(request.getId());
 		
-		GetUserResponse response = new GetUserResponse();
+		GetUserResponse response = new GetUserResponse(ErrorCode.SUCCESS);
 		response.setUsername(user.getUsername());
 		response.setFirstname(user.getFirstname());
 		response.setLastname(user.getLastname());
 		response.setStatus(user.getStatus());
-		response.setAcknowledge(true);
 		
 		return response;
 	}
@@ -70,15 +70,13 @@ public class UserServiceImpl extends BaseService implements UserService {
 		
 		List<User> userlist = userRepository.searchUser(request.getQueryString());
 		if(userlist == null || userlist.isEmpty()){
-			throw new SemNetRuntimeException(400, ErrorCode.USER_NOT_FOUND, "");
+			throw new SemNetException(ErrorCode.USER_NOT_FOUND);
 		}
 		
-		SearchUserResponse response = new SearchUserResponse();
+		SearchUserResponse response = new SearchUserResponse(ErrorCode.SUCCESS);
 		for (User user : userlist) {
 			response.addUser(user.getId(), user.getUsername(), user.getFirstname(), user.getLastname());
 		}
-		
-		response.setAcknowledge(true);		
 		
 		return response;
 	}
@@ -89,11 +87,10 @@ public class UserServiceImpl extends BaseService implements UserService {
 		validate(request);
 		
 		//TODO only admins and profile owners should be able to updateUser
-		ActionResponse response = new ActionResponse();
 
 		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
 		if(!authenticatedUser.getId().equalsIgnoreCase(request.getId())){
-			throw new SemNetRuntimeException(400, ErrorCode.INVALID_INPUT, "Input userId is different than authenticated user", "");
+			throw new SemNetException(ErrorCode.INVALID_INPUT);
 		}
 		
 		User user =	userRepository.findById(request.getId());
@@ -102,23 +99,21 @@ public class UserServiceImpl extends BaseService implements UserService {
 		user.setLastname(request.getLastname());
 
 		userRepository.save(user);
-		response.setAcknowledge(true);
 
-		return response;
+		return new ActionResponse(ErrorCode.SUCCESS);
 	}
 
 	@Override
 	public LoginResponse login(AuthenticationRequest request) {
 
-		LoginResponse response = new LoginResponse();
-
 		// TODO password must be stored encrypted
 		User user = userRepository.findByUsernameAndPassword(request.getUsername(), request.getPassword());
 
 		if (user == null) {
-			throw new SemNetRuntimeException(400, ErrorCode.USER_NOT_FOUND, "");
+			throw new SemNetException(ErrorCode.USER_NOT_FOUND);
 		}
 
+		LoginResponse response = new LoginResponse(ErrorCode.SUCCESS);
 		response.setToken(KeyUtils.currentTimeUUID().toString());
 		response.setId(user.getId());
 		
@@ -130,23 +125,19 @@ public class UserServiceImpl extends BaseService implements UserService {
 	@Override
 	public ActionResponse logout(BaseRequest request) {
 
-		ActionResponse response = new ActionResponse();
 		validate(request);
 		
 		SemNetSession.getInstance().removeToken(request.getAuthToken());
 
-		response.setAcknowledge(true);
-		return response;
+		return new ActionResponse(ErrorCode.SUCCESS);
 	}
 
 	@Override
 	public ActionResponse resetPassword(final ResetPasswordRequest request) {
 		
-		ActionResponse response = new ActionResponse();
-		
 		User user = userRepository.findByUsername(request.getUsername());
 		if(user == null){
-			throw new SemNetRuntimeException(400, ErrorCode.USER_NOT_FOUND, "");
+			throw new SemNetException(ErrorCode.USER_NOT_FOUND);
 		}
 		
 		final String oneTimeToken = KeyUtils.currentTimeUUID().toString();
@@ -155,19 +146,15 @@ public class UserServiceImpl extends BaseService implements UserService {
 		
 //		mailService.sendMail(request.getUsername(), "Password reset request", "You token for password renewal is " + oneTimeToken);
 		
-		response.setAcknowledge(true);
-
-		return response;
+		return new ActionResponse(ErrorCode.SUCCESS);
 	}
 
 	@Override
 	public ActionResponse changePassword(ChangePasswordRequest request) {
 		
-		ActionResponse response = new ActionResponse();
-		
 		final User user = userRepository.findByOneTimeToken(request.getOneTimeToken());
 		if(user == null){
-			throw new SemNetRuntimeException(400, ErrorCode.USER_NOT_FOUND, "");
+			throw new SemNetException(ErrorCode.USER_NOT_FOUND);
 		}
 		
 		user.setOneTimeToken(null);
@@ -177,9 +164,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 
 //		mailService.sendMail(user.getUsername(), "Password change request", "You password is updated successfully");
 		
-		response.setAcknowledge(true);
-		return response;
-		
+		return new ActionResponse(ErrorCode.SUCCESS);
 	}
 
 	private User mapUser(CreateUserRequest request){

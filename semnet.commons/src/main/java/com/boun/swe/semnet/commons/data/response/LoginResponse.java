@@ -1,5 +1,6 @@
 package com.boun.swe.semnet.commons.data.response;
 
+import com.boun.swe.semnet.commons.type.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Data;
@@ -12,5 +13,9 @@ public class LoginResponse extends ActionResponse{
 
 	private String token;
 	private String id;
+	
+	public LoginResponse(ErrorCode errorCode){
+		super(errorCode);
+	}
 	
 }
