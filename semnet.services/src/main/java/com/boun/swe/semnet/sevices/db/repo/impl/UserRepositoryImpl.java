@@ -70,7 +70,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 		or.add(clause2);
 		DBObject query = new BasicDBObject("$or", or);
 		
-		DBCollection userCollection = mongoTemplate.getCollection("users");
+		DBCollection userCollection = mongoTemplate.getCollection("user_");
 		DBCursor cursor = userCollection.find(query);
 		
 		List<User> userList = new ArrayList<User>();

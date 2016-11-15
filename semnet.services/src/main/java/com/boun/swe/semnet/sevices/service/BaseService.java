@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.boun.swe.semnet.commons.data.request.BaseRequest;
 import com.boun.swe.semnet.commons.exception.SemNetException;
 import com.boun.swe.semnet.commons.type.ErrorCode;
+import com.boun.swe.semnet.sevices.session.SemNetSession;
 
 public abstract class BaseService {
 
@@ -35,14 +36,10 @@ public abstract class BaseService {
     		throw new SemNetException(ErrorCode.INVALID_INPUT, "Authentication token field is empty");
     	}
     	
+    	if (!SemNetSession.getInstance().validateToken(request.getAuthToken())) {
+    		throw new SemNetException(ErrorCode.OPERATION_NOT_ALLOWED, "");
+		}
+    	
     	validateFields(request);
-    }
-
-    protected void validate(String authToken) throws SemNetException{
-
-        BaseRequest request = new BaseRequest();
-        request.setAuthToken(authToken);
-
-        validate(request);
     }
 }
