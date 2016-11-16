@@ -11,7 +11,10 @@ public enum ErrorCode {
 	USER_NOT_FOUND("User not found", "100"),
 	DUPLICATE_USER("There is already a user with given username", "101"),
 	OPERATION_NOT_ALLOWED("Operation is not allowed for not authenticated users", "102"),
-
+	DUPLICATE_FRIEND("Duplicate friend request", "103"),
+	CANNOT_ADD_SAME_USER_AS_FRIEND("You cannot add same user as friend", "104"),
+	FRIEND_NOT_FOUND("Friend not found", "105"),
+	
 	INVALID_INPUT("Invalid input-> {0}", "106"),
 	
 	INTERNAL_SERVER_ERROR("Internal Server Error", "900")

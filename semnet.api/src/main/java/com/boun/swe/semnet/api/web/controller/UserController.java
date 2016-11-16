@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.boun.swe.semnet.commons.data.request.AddFriendRequest;
 import com.boun.swe.semnet.commons.data.request.AuthenticationRequest;
 import com.boun.swe.semnet.commons.data.request.BaseRequest;
 import com.boun.swe.semnet.commons.data.request.BasicQueryRequest;
@@ -45,20 +46,12 @@ public class UserController {
     public @ResponseBody CreateUserResponse createUser(@RequestBody CreateUserRequest request) {
 
     	try{
-    		if(logger.isDebugEnabled()){
-    			logger.debug("createUser request received, request->" + request.toString());
-    		}
     		return userService.create(request);
     	}catch (SemNetException e) {
     		
     		logger.error("Error occured while running createUser service, code->" + e.getErrorCode());
     		
     		return new CreateUserResponse(e.getErrorCode(), e.getErrors());
-    		
-    	}finally{
-    		if(logger.isDebugEnabled()){
-    			logger.debug("createUser operation finished");
-    		}
     	}
     }
 
@@ -68,20 +61,12 @@ public class UserController {
 	public @ResponseBody ActionResponse updateUser(@RequestBody UpdateUserRequest request) {
 
 		try{
-			if(logger.isDebugEnabled()){
-				logger.debug("updateUser request received, request->" + request.toString());
-			}
 			return userService.update(request);
 		}catch (SemNetException e) {
     		
 			logger.error("Error occured while running updateUser service, code->" + e.getErrorCode());
 			
     		return new ActionResponse(e.getErrorCode(), e.getErrors());
-    		
-		}finally{
-			if(logger.isDebugEnabled()){
-				logger.debug("updateUser operation finished");
-			}
 		}
 	}
 
@@ -91,20 +76,12 @@ public class UserController {
     public @ResponseBody LoginResponse authenticate(@RequestBody AuthenticationRequest request){
     	
     	try{
-    		if(logger.isDebugEnabled()){
-    			logger.debug("login request received, request->" + request.toString());
-    		}
     		return userService.login(request);	
     	}catch (SemNetException e) {
     		
 			logger.error("Error occured while running authenticate service, code->" + e.getErrorCode());
 			
     		return new LoginResponse(e.getErrorCode(), e.getErrors());
-    		
-    	}finally{
-    		if(logger.isDebugEnabled()){
-    			logger.debug("login operation finished, username->" + request.getUsername());
-    		}
     	}
     }
     
@@ -114,9 +91,6 @@ public class UserController {
     public @ResponseBody ActionResponse logout(@RequestBody BaseRequest request){
     	
     	try{
-    		if(logger.isDebugEnabled()){
-    			logger.debug("logout request received, request->" + request.toString());
-    		}
     		return userService.logout(request);	
     		
     	}catch (SemNetException e) {
@@ -124,11 +98,6 @@ public class UserController {
     		logger.error("Error occured while running logout service, code->" + e.getErrorCode());
 			
     		return new ActionResponse(e.getErrorCode(), e.getErrors());
-    		
-    	}finally{
-    		if(logger.isDebugEnabled()){
-    			logger.debug("logout operation finished, username->" + request.getAuthToken());
-    		}
     	}
     }
  
@@ -138,9 +107,6 @@ public class UserController {
     public @ResponseBody ActionResponse resetPassword(@RequestBody ResetPasswordRequest request){
     	
     	try{
-    		if(logger.isDebugEnabled()){
-    			logger.debug("resetPassword request received, request->" + request.toString());
-    		}
     		return userService.resetPassword(request);	
     		
     	}catch (SemNetException e) {
@@ -148,11 +114,6 @@ public class UserController {
     		logger.error("Error occured while running resetPassword service, code->" + e.getErrorCode());
 			
     		return new ActionResponse(e.getErrorCode(), e.getErrors());
-    		
-    	}finally{
-    		if(logger.isDebugEnabled()){
-    			logger.debug("resetPassword operation finished, username->" + request.getUsername());
-    		}
     	}
     }
 
@@ -162,9 +123,6 @@ public class UserController {
     public @ResponseBody ActionResponse changePassword(@RequestBody ChangePasswordRequest request){
     	
     	try{
-    		if(logger.isDebugEnabled()){
-    			logger.debug("changePassword request received, oneTimeToken->" + request.getOneTimeToken());
-    		}
     		return userService.changePassword(request);	
     		
     	}catch (SemNetException e) {
@@ -172,11 +130,6 @@ public class UserController {
     		logger.error("Error occured while running changePassword service, code->" + e.getErrorCode());
 			
     		return new ActionResponse(e.getErrorCode(), e.getErrors());
-    		
-    	}finally{
-    		if(logger.isDebugEnabled()){
-    			logger.debug("changePassword operation finished, oneTimeToken->" + request.getOneTimeToken());
-    		}
     	}
     }
     
@@ -186,9 +139,6 @@ public class UserController {
     public @ResponseBody GetUserResponse getUser(@RequestBody BasicQueryRequest request){
     	
     	try{
-    		if(logger.isDebugEnabled()){
-    			logger.debug("getUser request received");
-    		}
     		return userService.get(request);	
     		
     	}catch (SemNetException e) {
@@ -196,11 +146,6 @@ public class UserController {
     		logger.error("Error occured while running getUser service, code->" + e.getErrorCode());
 			
     		return new GetUserResponse(e.getErrorCode(), e.getErrors());
-    		
-    	}finally{
-    		if(logger.isDebugEnabled()){
-    			logger.debug("getUser operation finished");
-    		}
     	}
     }
     
@@ -210,9 +155,6 @@ public class UserController {
     public @ResponseBody SearchUserResponse searchUser(@RequestBody BasicSearchRequest request){
     	
     	try{
-    		if(logger.isDebugEnabled()){
-    			logger.debug("searchUser request received");
-    		}
     		return userService.search(request);	
     		
     	}catch (SemNetException e) {
@@ -220,11 +162,38 @@ public class UserController {
     		logger.error("Error occured while running searchUser service, code->" + e.getErrorCode());
 			
     		return new SearchUserResponse(e.getErrorCode(), e.getErrors());
+    	}
+    }
+    
+    @ApiOperation(value="Add Friend")
+    @RequestMapping(value="addFriend", method = RequestMethod.POST)
+    @ApiResponses(value={@ApiResponse(code=200, message = "Success")})
+    public @ResponseBody ActionResponse addFriend(@RequestBody AddFriendRequest request){
+    	
+    	try{
+    		return userService.addFriend(request);	
     		
-    	}finally{
-    		if(logger.isDebugEnabled()){
-    			logger.debug("searchUser operation finished");
-    		}
+    	}catch (SemNetException e) {
+    		
+    		logger.error("Error occured while running addFriend service, code->" + e.getErrorCode());
+			
+    		return new ActionResponse(e.getErrorCode(), e.getErrors());
+    	}
+    }
+    
+    @ApiOperation(value="Remove Friend")
+    @RequestMapping(value="removeFriend", method = RequestMethod.POST)
+    @ApiResponses(value={@ApiResponse(code=200, message = "Success")})
+    public @ResponseBody ActionResponse removeFriend(@RequestBody AddFriendRequest request){
+    	
+    	try{
+    		return userService.removeFriend(request);	
+    		
+    	}catch (SemNetException e) {
+    		
+    		logger.error("Error occured while running removeFriend service, code->" + e.getErrorCode());
+			
+    		return new ActionResponse(e.getErrorCode(), e.getErrors());
     	}
     }
 }

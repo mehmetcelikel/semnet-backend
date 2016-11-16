@@ -1,10 +1,12 @@
 package com.boun.swe.semnet.sevices.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.boun.swe.semnet.commons.data.request.AddFriendRequest;
 import com.boun.swe.semnet.commons.data.request.AuthenticationRequest;
 import com.boun.swe.semnet.commons.data.request.BaseRequest;
 import com.boun.swe.semnet.commons.data.request.BasicQueryRequest;
@@ -22,7 +24,9 @@ import com.boun.swe.semnet.commons.exception.SemNetException;
 import com.boun.swe.semnet.commons.type.ErrorCode;
 import com.boun.swe.semnet.commons.type.UserStatus;
 import com.boun.swe.semnet.commons.util.KeyUtils;
+import com.boun.swe.semnet.sevices.db.model.Friendship;
 import com.boun.swe.semnet.sevices.db.model.User;
+import com.boun.swe.semnet.sevices.db.repo.FriendshipRepository;
 import com.boun.swe.semnet.sevices.db.repo.UserRepository;
 import com.boun.swe.semnet.sevices.service.BaseService;
 import com.boun.swe.semnet.sevices.service.UserService;
@@ -34,6 +38,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 	@Autowired
 	private UserRepository userRepository;
 
+	@Autowired
+	private FriendshipRepository friendshipRepository;
+	
 	@Override
 	public CreateUserResponse create(CreateUserRequest request) {
 
@@ -180,5 +187,50 @@ public class UserServiceImpl extends BaseService implements UserService {
 		
 		return user;
 		
+	}
+
+	@Override
+	public ActionResponse addFriend(AddFriendRequest request) {
+		validate(request);
+		
+		User user = userRepository.findById(request.getFriendId());
+		if(user == null){
+			throw new SemNetException(ErrorCode.USER_NOT_FOUND);
+		}
+		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
+		
+		if(request.getFriendId().equals(authenticatedUser.getId())){
+			throw new SemNetException(ErrorCode.CANNOT_ADD_SAME_USER_AS_FRIEND);
+		}
+		
+		Friendship friendship = friendshipRepository.findById(authenticatedUser.getId(), user.getId());
+		if(friendship != null){
+			throw new SemNetException(ErrorCode.DUPLICATE_FRIEND);
+		}
+		friendship = new Friendship();
+		friendship.setActive(true);
+		friendship.setCreationTime(new Date());
+		friendship.setSource(authenticatedUser);
+		friendship.setTarget(user);
+		
+		friendshipRepository.save(friendship);
+		
+		return new ActionResponse(ErrorCode.SUCCESS);
+	}
+	
+	@Override
+	public ActionResponse removeFriend(AddFriendRequest request) {
+		validate(request);
+		
+		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
+		
+		Friendship friendship = friendshipRepository.findById(authenticatedUser.getId(), request.getFriendId());
+		if(friendship == null){
+			throw new SemNetException(ErrorCode.FRIEND_NOT_FOUND);
+		}
+		
+		friendshipRepository.delete(friendship);
+		
+		return new ActionResponse(ErrorCode.SUCCESS);
 	}
 }

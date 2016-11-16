@@ -1,5 +1,6 @@
 package com.boun.swe.semnet.sevices.service;
 
+import com.boun.swe.semnet.commons.data.request.AddFriendRequest;
 import com.boun.swe.semnet.commons.data.request.AuthenticationRequest;
 import com.boun.swe.semnet.commons.data.request.BaseRequest;
 import com.boun.swe.semnet.commons.data.request.BasicQueryRequest;
@@ -32,4 +33,8 @@ public interface UserService {
     GetUserResponse get(BasicQueryRequest request);
     
     SearchUserResponse search(BasicSearchRequest request);
+    
+    ActionResponse addFriend(AddFriendRequest request);
+    
+    ActionResponse removeFriend(AddFriendRequest request);
 }
