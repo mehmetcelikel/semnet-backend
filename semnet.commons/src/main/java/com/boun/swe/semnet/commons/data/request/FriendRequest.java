@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class AddFriendRequest extends BaseRequest{
+public class FriendRequest extends BaseRequest{
 
 	@NotNull
 	private String friendId;
