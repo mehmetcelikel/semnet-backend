@@ -18,6 +18,8 @@ import lombok.EqualsAndHashCode;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Comment extends BaseEntity{
 
+	private static final long serialVersionUID = 888169976837026962L;
+
 	private String description;
 	
 	@DBRef

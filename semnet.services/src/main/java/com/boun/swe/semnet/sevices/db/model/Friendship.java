@@ -18,6 +18,8 @@ import lombok.EqualsAndHashCode;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Friendship extends BaseEntity{
 
+	private static final long serialVersionUID = -1629115676756775849L;
+
 	@DBRef
 	private User source;
 	

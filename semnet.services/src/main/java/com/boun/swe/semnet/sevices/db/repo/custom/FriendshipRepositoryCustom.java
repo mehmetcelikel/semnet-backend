@@ -8,5 +8,7 @@ public interface FriendshipRepositoryCustom {
 
 	List<Friendship> findById(String id);
 
-	Friendship findById(String sourceId, String targetId);
+	List<Friendship> merge(Friendship friendship, List<Friendship> friendList);
+	
+	List<Friendship> delete(Friendship user, List<Friendship> friendList);
 }

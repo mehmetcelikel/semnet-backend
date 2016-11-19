@@ -2,17 +2,18 @@ package com.boun.swe.semnet.sevices.service.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.boun.swe.semnet.commons.data.request.FriendRequest;
 import com.boun.swe.semnet.commons.data.request.AuthenticationRequest;
 import com.boun.swe.semnet.commons.data.request.BaseRequest;
 import com.boun.swe.semnet.commons.data.request.BasicQueryRequest;
 import com.boun.swe.semnet.commons.data.request.BasicSearchRequest;
 import com.boun.swe.semnet.commons.data.request.ChangePasswordRequest;
 import com.boun.swe.semnet.commons.data.request.CreateUserRequest;
+import com.boun.swe.semnet.commons.data.request.FriendRequest;
 import com.boun.swe.semnet.commons.data.request.ResetPasswordRequest;
 import com.boun.swe.semnet.commons.data.request.UpdateUserRequest;
 import com.boun.swe.semnet.commons.data.response.ActionResponse;
@@ -29,6 +30,7 @@ import com.boun.swe.semnet.sevices.db.model.User;
 import com.boun.swe.semnet.sevices.db.repo.FriendshipRepository;
 import com.boun.swe.semnet.sevices.db.repo.UserRepository;
 import com.boun.swe.semnet.sevices.service.BaseService;
+import com.boun.swe.semnet.sevices.service.LoginService;
 import com.boun.swe.semnet.sevices.service.UserService;
 import com.boun.swe.semnet.sevices.session.SemNetSession;
 
@@ -38,6 +40,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 	@Autowired
 	private UserRepository userRepository;
 
+	@Autowired
+	private LoginService loginService;
+	
 	@Autowired
 	private FriendshipRepository friendshipRepository;
 	
@@ -51,7 +56,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			throw new SemNetException(ErrorCode.DUPLICATE_USER);
 		}
 
-		user = userRepository.save(mapUser(request));
+		user = userRepository.merge(mapUser(request));
 
 		return new CreateUserResponse(ErrorCode.SUCCESS, user.getId(), user.getUsername(), user.getFirstname(), user.getLastname());
 	}
@@ -107,7 +112,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		user.setFirstname(request.getFirstname());
 		user.setLastname(request.getLastname());
 
-		userRepository.save(user);
+		userRepository.merge(user);
 
 		return new ActionResponse(ErrorCode.SUCCESS);
 	}
@@ -123,11 +128,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 
 		LoginResponse response = new LoginResponse(ErrorCode.SUCCESS);
-		response.setToken(KeyUtils.currentTimeUUID().toString());
+		response.setToken(loginService.login(user).getToken());
 		response.setId(user.getId());
 		
-		SemNetSession.getInstance().addToken(response.getToken(), user);
-
 		return response;
 	}
 	
@@ -136,8 +139,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 
 		validate(request);
 		
-		SemNetSession.getInstance().removeToken(request.getAuthToken());
-
+		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
+		loginService.logout(authenticatedUser);
+		
 		return new ActionResponse(ErrorCode.SUCCESS);
 	}
 
@@ -176,19 +180,6 @@ public class UserServiceImpl extends BaseService implements UserService {
 		return new ActionResponse(ErrorCode.SUCCESS);
 	}
 
-	private User mapUser(CreateUserRequest request){
-		User user = new User();
-		
-		user.setFirstname(request.getFirstname());
-		user.setLastname(request.getLastname());
-		user.setPassword(request.getPassword());
-		user.setStatus(UserStatus.ACTIVE);
-		user.setUsername(request.getUsername());
-		
-		return user;
-		
-	}
-
 	@Override
 	public ActionResponse addFriend(FriendRequest request) {
 		validate(request);
@@ -197,23 +188,26 @@ public class UserServiceImpl extends BaseService implements UserService {
 		if(user == null){
 			throw new SemNetException(ErrorCode.USER_NOT_FOUND);
 		}
-		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
 		
+		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
 		if(request.getFriendId().equals(authenticatedUser.getId())){
 			throw new SemNetException(ErrorCode.CANNOT_ADD_SAME_USER_AS_FRIEND);
 		}
 		
-		Friendship friendship = friendshipRepository.findById(authenticatedUser.getId(), user.getId());
-		if(friendship != null){
-			throw new SemNetException(ErrorCode.DUPLICATE_FRIEND);
+		List<Friendship> friendList = friendshipRepository.findById(authenticatedUser.getId());
+		if(friendList != null && !friendList.isEmpty()){
+			Optional<Friendship> friendship = friendList.stream().filter(x -> x.getTarget().getId().equals(request.getFriendId())).findFirst();
+			if(friendship.isPresent()){
+				throw new SemNetException(ErrorCode.DUPLICATE_FRIEND);
+			}
 		}
-		friendship = new Friendship();
+		Friendship friendship = new Friendship();
 		friendship.setActive(true);
 		friendship.setCreationTime(new Date());
 		friendship.setSource(authenticatedUser);
 		friendship.setTarget(user);
 		
-		friendshipRepository.save(friendship);
+		friendshipRepository.merge(friendship, friendList);
 		
 		return new ActionResponse(ErrorCode.SUCCESS);
 	}
@@ -224,12 +218,21 @@ public class UserServiceImpl extends BaseService implements UserService {
 		
 		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
 		
-		Friendship friendship = friendshipRepository.findById(authenticatedUser.getId(), request.getFriendId());
-		if(friendship == null){
+		Friendship friend = null;
+		
+		List<Friendship> friendList = friendshipRepository.findById(authenticatedUser.getId());
+		if(friendList != null && !friendList.isEmpty()){
+			Optional<Friendship> friendship = friendList.stream().filter(x -> x.getTarget().getId().equals(request.getFriendId())).findFirst();
+			if(friendship.isPresent()){
+				friend = friendship.get(); 
+			}
+		}
+		
+		if(friend == null){
 			throw new SemNetException(ErrorCode.FRIEND_NOT_FOUND);
 		}
 		
-		friendshipRepository.delete(friendship);
+		friendshipRepository.delete(friend, friendList);
 		
 		return new ActionResponse(ErrorCode.SUCCESS);
 	}
@@ -240,17 +243,25 @@ public class UserServiceImpl extends BaseService implements UserService {
 		
 		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
 		
-		Friendship friendship = friendshipRepository.findById(authenticatedUser.getId(), request.getFriendId());
-		if(friendship == null){
+		Friendship friend = null;
+		
+		List<Friendship> friendList = friendshipRepository.findById(authenticatedUser.getId());
+		if(friendList != null && !friendList.isEmpty()){
+			Optional<Friendship> friendship = friendList.stream().filter(x -> x.getTarget().getId().equals(request.getFriendId())).findFirst();
+			if(friendship.isPresent()){
+				friend = friendship.get(); 
+			}
+		}
+		if(friend == null){
 			throw new SemNetException(ErrorCode.FRIEND_NOT_FOUND);
 		}
 		
-		if(!friendship.isActive()){
+		if(!friend.isActive()){
 			throw new SemNetException(ErrorCode.FRIEND_NOT_FOUND);
 		}
 		
-		friendship.setActive(false);
-		friendshipRepository.save(friendship);
+		friend.setActive(false);
+		friendshipRepository.merge(friend, friendList);
 		
 		return new ActionResponse(ErrorCode.SUCCESS);
 	}
@@ -271,5 +282,17 @@ public class UserServiceImpl extends BaseService implements UserService {
 		friendshipList.stream().filter(x -> x.isActive()).forEach(y -> response.addUser(y.getTarget().getId(), y.getTarget().getUsername(), y.getTarget().getFirstname(), y.getTarget().getLastname()));
 		
 		return response;
+	}
+	
+	private User mapUser(CreateUserRequest request){
+		User user = new User();
+		
+		user.setFirstname(request.getFirstname());
+		user.setLastname(request.getLastname());
+		user.setPassword(request.getPassword());
+		user.setStatus(UserStatus.ACTIVE);
+		user.setUsername(request.getUsername());
+		
+		return user;
 	}
 }

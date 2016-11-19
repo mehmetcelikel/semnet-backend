@@ -6,8 +6,6 @@ import com.boun.swe.semnet.sevices.db.model.User;
 
 public interface UserRepositoryCustom {
 
-    User findById(Long id);
-
     User findByUsernameAndPassword(String username, String password);
     
     User findByUsername(String username);
@@ -16,4 +14,7 @@ public interface UserRepositoryCustom {
     
     List<User> searchUser(String queryString);
 
+    User findById(String id);
+    
+    User merge(User user);
 }

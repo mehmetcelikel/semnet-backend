@@ -19,6 +19,8 @@ import lombok.EqualsAndHashCode;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Content extends BaseEntity{
 
+	private static final long serialVersionUID = 6144439756047888283L;
+
 	private String description;
 	private Date creationDate;
 	

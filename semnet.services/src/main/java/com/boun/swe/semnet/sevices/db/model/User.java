@@ -1,5 +1,6 @@
 package com.boun.swe.semnet.sevices.db.model;
 
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -18,7 +19,9 @@ import lombok.EqualsAndHashCode;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User extends BaseEntity{
 
-    @Field("username")
+	private static final long serialVersionUID = 553091158811833395L;
+
+	@Field("username")
     private String username;
 
     @Field("firstname")
@@ -36,6 +39,9 @@ public class User extends BaseEntity{
 
     private UserStatus status;
 
+    @Transient
+    private String token;
+    
 	public User(){
 	}
 }
