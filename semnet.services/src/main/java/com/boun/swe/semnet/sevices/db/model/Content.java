@@ -30,7 +30,7 @@ public class Content extends BaseEntity{
 	@DBRef
 	private List<User> likers;
 	
-	private int likeCount;
+	private int likeCount = 0;
 	
 	@DBRef
 	private List<Comment> comments;
