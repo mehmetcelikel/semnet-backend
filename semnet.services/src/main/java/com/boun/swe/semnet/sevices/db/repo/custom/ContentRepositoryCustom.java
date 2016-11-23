@@ -8,8 +8,6 @@ public interface ContentRepositoryCustom {
 
 	Content findById(String contentId);
 	
-	List<Content> findByUserId(String id);
-	
 	Content merge(Content content);
 	
 	void delete(Content content);

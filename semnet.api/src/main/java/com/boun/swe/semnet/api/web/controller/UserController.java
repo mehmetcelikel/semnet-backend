@@ -18,7 +18,7 @@ import com.boun.swe.semnet.commons.data.request.CreateUserRequest;
 import com.boun.swe.semnet.commons.data.request.ResetPasswordRequest;
 import com.boun.swe.semnet.commons.data.request.UpdateUserRequest;
 import com.boun.swe.semnet.commons.data.response.ActionResponse;
-import com.boun.swe.semnet.commons.data.response.CreateUserResponse;
+import com.boun.swe.semnet.commons.data.response.CreateResponse;
 import com.boun.swe.semnet.commons.data.response.GetUserResponse;
 import com.boun.swe.semnet.commons.data.response.LoginResponse;
 import com.boun.swe.semnet.commons.data.response.UserListResponse;
@@ -42,7 +42,7 @@ public class UserController {
     @ApiOperation(value="Create User")
     @RequestMapping(value="create", method = RequestMethod.POST)
     @ApiResponses(value={@ApiResponse(code=200, message = "Success")})
-    public @ResponseBody CreateUserResponse createUser(@RequestBody CreateUserRequest request) {
+    public @ResponseBody CreateResponse createUser(@RequestBody CreateUserRequest request) {
 
     	try{
     		return userService.create(request);
@@ -50,7 +50,7 @@ public class UserController {
     		
     		logger.error("Error occured while running createUser service, code->" + e.getErrorCode());
     		
-    		return new CreateUserResponse(e.getErrorCode(), e.getErrors());
+    		return new CreateResponse(e.getErrorCode(), e.getErrors());
     	}
     }
 

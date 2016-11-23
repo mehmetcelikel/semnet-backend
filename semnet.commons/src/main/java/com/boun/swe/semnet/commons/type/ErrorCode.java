@@ -21,6 +21,8 @@ public enum ErrorCode {
 	CONTENT_DOES_NOT_BELONG_TO_YOU("Content does not belong to you", "108"),
 	COMMENT_DOES_NOT_BELONG_TO_YOU("Comment does not belong to you", "109"),
 	
+	CORRUPTED_IMAGE("Image is corrupted", "130"),
+	
 	INTERNAL_SERVER_ERROR("Internal Server Error", "900")
 	;
 

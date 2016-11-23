@@ -16,15 +16,17 @@ import com.boun.swe.semnet.commons.data.request.ListContentRequest;
 import com.boun.swe.semnet.commons.data.response.ActionResponse;
 import com.boun.swe.semnet.commons.data.response.ContentListResponse;
 import com.boun.swe.semnet.commons.data.response.ContentObj;
+import com.boun.swe.semnet.commons.data.response.CreateResponse;
 import com.boun.swe.semnet.commons.data.response.GetContentResponse;
 import com.boun.swe.semnet.commons.exception.SemNetException;
 import com.boun.swe.semnet.commons.type.ErrorCode;
 import com.boun.swe.semnet.commons.util.KeyUtils;
+import com.boun.swe.semnet.sevices.db.manager.ContentManager;
+import com.boun.swe.semnet.sevices.db.manager.UserManager;
 import com.boun.swe.semnet.sevices.db.model.Comment;
 import com.boun.swe.semnet.sevices.db.model.Content;
 import com.boun.swe.semnet.sevices.db.model.Friendship;
 import com.boun.swe.semnet.sevices.db.model.User;
-import com.boun.swe.semnet.sevices.db.repo.ContentRepository;
 import com.boun.swe.semnet.sevices.db.repo.FriendshipRepository;
 import com.boun.swe.semnet.sevices.service.BaseService;
 import com.boun.swe.semnet.sevices.service.ContentService;
@@ -34,13 +36,16 @@ import com.boun.swe.semnet.sevices.session.SemNetSession;
 public class ContentServiceImpl extends BaseService implements ContentService{
 
 	@Autowired
-	private ContentRepository contentRepository;
+	private ContentManager contentRepository;
 	
 	@Autowired
 	private FriendshipRepository friendRepository;
 	
+	@Autowired
+	private UserManager userManager;
+	
 	@Override
-	public ActionResponse create(AddContentRequest request){
+	public CreateResponse create(AddContentRequest request){
 		validate(request);
 		
 		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
@@ -50,9 +55,12 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		content.setCreationDate(new Date());
 		content.setOwner(authenticatedUser);
 		
-		contentRepository.merge(content);
+		authenticatedUser.getContents().add(content);
 		
-		return new ActionResponse(ErrorCode.SUCCESS);
+		contentRepository.merge(content);
+		userManager.merge(authenticatedUser);
+		
+		return new CreateResponse(ErrorCode.SUCCESS, content.getId());
 	}
 	
 	@Override
@@ -69,8 +77,6 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		if(!content.getOwner().getId().equals(authenticatedUser.getId())){
 			throw new SemNetException(ErrorCode.CONTENT_DOES_NOT_BELONG_TO_YOU);
 		}
-		
-		contentRepository.merge(content);
 		
 		GetContentResponse resp = new GetContentResponse(ErrorCode.SUCCESS);
 		resp.setContentDetails(content.getId(), content.getDescription(), content.getCreationDate(), content.getOwner().getId());
@@ -98,7 +104,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		
 		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
 		
-		List<Content> contentList = getContentList(request, authenticatedUser.getId());
+		List<Content> contentList = getContentList(request, authenticatedUser);
 		if(contentList == null || contentList.isEmpty()){
 			return resp;
 		}
@@ -245,7 +251,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		return new ActionResponse(ErrorCode.SUCCESS);
 	}
 	
-	private List<Content> getContentList(ListContentRequest request, String authenticatedUserId){
+	private List<Content> getContentList(ListContentRequest request, User authenticatedUser){
 
 		switch (request.getType()) {
 		case RECENT:
@@ -253,18 +259,24 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		case POPULAR:
 			return contentRepository.findPopularContents();
 		case SPECIFIED:
-			return contentRepository.findByUserId(request.getUserId());
+			User user = userManager.findById(request.getUserId());
+			return user != null ? user.getContents() : new ArrayList<>();
 		case FRIEND:
 			List<Content> resultList = new ArrayList<>();
 			
-			List<Friendship> friendList = friendRepository.findById(authenticatedUserId);
+			List<Friendship> friendList = friendRepository.findById(authenticatedUser.getId());
 			for (Friendship friendship : friendList) {
-				resultList.addAll(contentRepository.findByUserId(friendship.getTarget().getId()));
+				resultList.addAll(friendship.getTarget().getContents());
 			}
 			return resultList;
 		default:
 			break;
 		}
 		return new ArrayList<>();
+	}
+
+	@Override
+	public ActionResponse upload(String authToken, byte[] image, String filename, String contentId) {
+		return new ActionResponse(ErrorCode.SUCCESS);
 	}
 }

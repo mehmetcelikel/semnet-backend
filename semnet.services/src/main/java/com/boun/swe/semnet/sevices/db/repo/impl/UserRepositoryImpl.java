@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -24,11 +21,10 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
     @Autowired private MongoTemplate mongoTemplate;
 
-    @Cacheable(value="userCache", key="#username")
 	@Override
 	public User findByUsernameAndPassword(String username, String password) {
     	
-    	System.out.println("QUERY RUNNING");
+    	System.out.println("QUERY UserRepositoryImpl.findByUsernameAndPassword RUNNING");
     	
 		Query query = new Query();
 		query.addCriteria(Criteria.where("username").is(username).and("password").is(password));
@@ -36,11 +32,10 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 		return mongoTemplate.findOne(query, User.class);
 	}
 
-    @Cacheable(value="userCache", key="#username")
 	@Override
 	public User findByUsername(String username) {
     	
-    	System.out.println("QUERY RUNNING");
+		System.out.println("QUERY UserRepositoryImpl.findByUsername RUNNING");
     	
 		Query query = new Query();
 		query.addCriteria(Criteria.where("username").is(username));
@@ -92,21 +87,14 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 		return userList;
 	}
 
-	@Cacheable(value="userCache")
 	@Override
 	public User findById(String id) {
 		
-		System.out.println("QUERY RUNNING");
+		System.out.println("QUERY UserRepositoryImpl.findById RUNNING");
 		
 		return mongoTemplate.findById(id, User.class);
 	}
 
-	@Caching(
-	        put = {
-	                @CachePut(value = "userCache", key = "#user.id"),
-	                @CachePut(value = "userCache", key = "#user.username")
-	        }
-	)
 	@Override
 	public User merge(User user) {
 		mongoTemplate.save(user);

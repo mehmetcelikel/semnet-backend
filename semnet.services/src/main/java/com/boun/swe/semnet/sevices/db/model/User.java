@@ -1,6 +1,10 @@
 package com.boun.swe.semnet.sevices.db.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -41,6 +45,9 @@ public class User extends BaseEntity{
 
     @Transient
     private String token;
+    
+    @DBRef
+	private List<Content> contents = new ArrayList<>();
     
 	public User(){
 	}

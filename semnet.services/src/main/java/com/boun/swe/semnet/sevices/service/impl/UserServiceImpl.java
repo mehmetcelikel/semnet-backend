@@ -14,7 +14,7 @@ import com.boun.swe.semnet.commons.data.request.CreateUserRequest;
 import com.boun.swe.semnet.commons.data.request.ResetPasswordRequest;
 import com.boun.swe.semnet.commons.data.request.UpdateUserRequest;
 import com.boun.swe.semnet.commons.data.response.ActionResponse;
-import com.boun.swe.semnet.commons.data.response.CreateUserResponse;
+import com.boun.swe.semnet.commons.data.response.CreateResponse;
 import com.boun.swe.semnet.commons.data.response.GetUserResponse;
 import com.boun.swe.semnet.commons.data.response.LoginResponse;
 import com.boun.swe.semnet.commons.data.response.UserListResponse;
@@ -39,7 +39,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private LoginService loginService;
 	
 	@Override
-	public CreateUserResponse create(CreateUserRequest request) {
+	public CreateResponse create(CreateUserRequest request) {
 
 		validateFields(request);
 		
@@ -50,7 +50,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 
 		user = userRepository.merge(mapUser(request));
 
-		return new CreateUserResponse(ErrorCode.SUCCESS, user.getId(), user.getUsername(), user.getFirstname(), user.getLastname());
+		return new CreateResponse(ErrorCode.SUCCESS, user.getId());
 	}
 
 	@Override

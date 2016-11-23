@@ -9,7 +9,7 @@ import com.boun.swe.semnet.commons.data.request.CreateUserRequest;
 import com.boun.swe.semnet.commons.data.request.ResetPasswordRequest;
 import com.boun.swe.semnet.commons.data.request.UpdateUserRequest;
 import com.boun.swe.semnet.commons.data.response.ActionResponse;
-import com.boun.swe.semnet.commons.data.response.CreateUserResponse;
+import com.boun.swe.semnet.commons.data.response.CreateResponse;
 import com.boun.swe.semnet.commons.data.response.GetUserResponse;
 import com.boun.swe.semnet.commons.data.response.LoginResponse;
 import com.boun.swe.semnet.commons.data.response.UserListResponse;
@@ -21,7 +21,7 @@ public interface UserService {
 	
 	ActionResponse logout(BaseRequest request);
 	
-	CreateUserResponse create(CreateUserRequest request);
+	CreateResponse create(CreateUserRequest request);
 
     ActionResponse update(UpdateUserRequest request);
 
