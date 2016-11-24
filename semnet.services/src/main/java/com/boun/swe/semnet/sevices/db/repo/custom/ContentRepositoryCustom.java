@@ -10,7 +10,7 @@ public interface ContentRepositoryCustom {
 	
 	Content merge(Content content);
 	
-	void delete(Content content);
+	void remove(Content content);
 	
 	List<Content> findLatestContents();
 	List<Content> findPopularContents();

@@ -43,7 +43,7 @@ public class ContentManagerImpl implements ContentManager{
 	)
 	@Override
 	public void delete(Content content) {
-		contentRepository.delete(content);
+		contentRepository.remove(content);
 	}
 
 	@Override

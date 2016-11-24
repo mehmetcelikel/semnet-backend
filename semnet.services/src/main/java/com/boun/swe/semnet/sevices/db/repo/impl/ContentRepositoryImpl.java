@@ -29,7 +29,7 @@ public class ContentRepositoryImpl implements ContentRepositoryCustom {
 	}
 	
 	@Override
-	public void delete(Content content) {
+	public void remove(Content content) {
 		mongoTemplate.remove(content);
 	}
 	
