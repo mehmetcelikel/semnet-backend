@@ -1,6 +1,9 @@
 package com.boun.swe.semnet.api.web.controller;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +30,8 @@ import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
+
+import shaded.org.apache.commons.io.IOUtils;
 
 @RestController
 @Api(value = "content", description = "Content service")
@@ -73,6 +78,30 @@ public class ContentController {
 		}
     }
     
+	@ApiOperation(value = "Download Content")
+	@RequestMapping(value = "downloadContent", method = RequestMethod.GET)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Success"), @ApiResponse(code = 500, message = "Internal Server Error") })
+	public @ResponseBody
+	void downloadContent(@RequestParam("contentId")String contentId, @RequestParam("authToken")String authToken,  HttpServletResponse response) {
+
+		try {
+
+			byte[] image =  contentService.downloadContent(authToken, contentId);
+
+			response.setContentType("application/force-download");
+			response.setContentLength((int) image.length);
+			response.setHeader("Content-Transfer-Encoding", "binary");
+			response.setHeader("Content-Disposition","attachment; filename=\"" + "ContentImage" +"\"");
+
+			IOUtils.copy(new ByteArrayInputStream(image), response.getOutputStream());
+			
+		}catch (SemNetException e) {
+    		logger.error("Error occured while running createContent service, code->" + e.getErrorCode());
+		} catch (Exception e) {
+			logger.error("IO Error occured while running createContent service", e);
+		}
+	}
+	
     @ApiOperation(value="Get Content")
     @RequestMapping(value="get", method = RequestMethod.POST)
     @ApiResponses(value={@ApiResponse(code=200, message = "Success")})

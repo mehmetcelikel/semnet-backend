@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.boun.swe.semnet.commons.data.request.AddCommentRequest;
 import com.boun.swe.semnet.commons.data.request.AddContentRequest;
+import com.boun.swe.semnet.commons.data.request.BaseRequest;
 import com.boun.swe.semnet.commons.data.request.BasicQueryRequest;
 import com.boun.swe.semnet.commons.data.request.DeleteCommentRequest;
 import com.boun.swe.semnet.commons.data.request.ListContentRequest;
@@ -22,6 +23,7 @@ import com.boun.swe.semnet.commons.exception.SemNetException;
 import com.boun.swe.semnet.commons.type.ErrorCode;
 import com.boun.swe.semnet.commons.util.KeyUtils;
 import com.boun.swe.semnet.sevices.db.manager.ContentManager;
+import com.boun.swe.semnet.sevices.db.manager.ImagePersistencyManager;
 import com.boun.swe.semnet.sevices.db.manager.UserManager;
 import com.boun.swe.semnet.sevices.db.model.Comment;
 import com.boun.swe.semnet.sevices.db.model.Content;
@@ -39,6 +41,9 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 	
 	@Autowired
 	private UserManager userManager;
+	
+	@Autowired
+	private ImagePersistencyManager imagePersistencyManager;
 	
 	@Override
 	public CreateResponse create(AddContentRequest request){
@@ -271,6 +276,30 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 
 	@Override
 	public ActionResponse upload(String authToken, byte[] image, String filename, String contentId) {
+		
+		BaseRequest request = new BaseRequest();
+		request.setAuthToken(authToken);
+		
+		validate(request);
+		
+		Content content = contentRepository.findById(contentId);
+		if(content == null){
+			throw new SemNetException(ErrorCode.CONTENT_NOT_FOUND);
+		}
+		
+		imagePersistencyManager.saveImage(contentId, image);
+		
 		return new ActionResponse(ErrorCode.SUCCESS);
+	}
+	
+	@Override
+	public byte[] downloadContent(String authToken, String contentId) {
+		
+		BaseRequest request = new BaseRequest();
+		request.setAuthToken(authToken);
+		
+		validate(request);
+		
+		return imagePersistencyManager.getImage(contentId);
 	}
 }

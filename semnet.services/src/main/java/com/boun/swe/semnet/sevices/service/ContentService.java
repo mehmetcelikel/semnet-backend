@@ -14,7 +14,9 @@ public interface ContentService {
 	public ActionResponse create(AddContentRequest request);
 	public GetContentResponse get(BasicQueryRequest request);
 	public ContentListResponse list(ListContentRequest request);
+	
 	public ActionResponse upload(String authToken, byte[] image, String filename, String contentId);
+	public byte[] downloadContent(String authToken, String contentId);
 	
 	public ActionResponse like(BasicQueryRequest request);
 	public ActionResponse unLike(BasicQueryRequest request);
