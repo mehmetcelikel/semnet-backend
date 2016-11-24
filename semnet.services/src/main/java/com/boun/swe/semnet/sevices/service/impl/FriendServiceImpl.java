@@ -13,10 +13,9 @@ import com.boun.swe.semnet.commons.data.response.ActionResponse;
 import com.boun.swe.semnet.commons.data.response.UserListResponse;
 import com.boun.swe.semnet.commons.exception.SemNetException;
 import com.boun.swe.semnet.commons.type.ErrorCode;
+import com.boun.swe.semnet.sevices.db.manager.UserManager;
 import com.boun.swe.semnet.sevices.db.model.Friendship;
 import com.boun.swe.semnet.sevices.db.model.User;
-import com.boun.swe.semnet.sevices.db.repo.FriendshipRepository;
-import com.boun.swe.semnet.sevices.db.repo.UserRepository;
 import com.boun.swe.semnet.sevices.service.BaseService;
 import com.boun.swe.semnet.sevices.service.FriendService;
 import com.boun.swe.semnet.sevices.session.SemNetSession;
@@ -25,10 +24,7 @@ import com.boun.swe.semnet.sevices.session.SemNetSession;
 public class FriendServiceImpl extends BaseService implements FriendService{
 
 	@Autowired
-	private FriendshipRepository friendshipRepository;
-	
-	@Autowired
-	private UserRepository userRepository;
+	private UserManager userRepository;
 	
 	@Override
 	public ActionResponse addFriend(FriendRequest request) {
@@ -44,9 +40,9 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 			throw new SemNetException(ErrorCode.CANNOT_ADD_SAME_USER_AS_FRIEND);
 		}
 		
-		List<Friendship> friendList = friendshipRepository.findById(authenticatedUser.getId());
+		List<Friendship> friendList = authenticatedUser.getFriendList();
 		if(friendList != null && !friendList.isEmpty()){
-			Optional<Friendship> friendship = friendList.stream().filter(x -> x.getTarget().getId().equals(request.getFriendId())).findFirst();
+			Optional<Friendship> friendship = friendList.stream().filter(x -> x.getUser().getId().equals(request.getFriendId())).findFirst();
 			if(friendship.isPresent()){
 				throw new SemNetException(ErrorCode.DUPLICATE_FRIEND);
 			}
@@ -54,10 +50,11 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		Friendship friendship = new Friendship();
 		friendship.setActive(true);
 		friendship.setCreationTime(new Date());
-		friendship.setSource(authenticatedUser);
-		friendship.setTarget(user);
+		friendship.setUser(user);
 		
-		friendshipRepository.merge(friendship, friendList);
+		authenticatedUser.getFriendList().add(friendship);
+		
+		userRepository.merge(authenticatedUser);
 		
 		return new ActionResponse(ErrorCode.SUCCESS);
 	}
@@ -70,9 +67,9 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		
 		Friendship friend = null;
 		
-		List<Friendship> friendList = friendshipRepository.findById(authenticatedUser.getId());
+		List<Friendship> friendList = authenticatedUser.getFriendList();
 		if(friendList != null && !friendList.isEmpty()){
-			Optional<Friendship> friendship = friendList.stream().filter(x -> x.getTarget().getId().equals(request.getFriendId())).findFirst();
+			Optional<Friendship> friendship = friendList.stream().filter(x -> x.getUser().getId().equals(request.getFriendId())).findFirst();
 			if(friendship.isPresent()){
 				friend = friendship.get(); 
 			}
@@ -81,8 +78,10 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		if(friend == null){
 			throw new SemNetException(ErrorCode.FRIEND_NOT_FOUND);
 		}
+		friendList.remove(friend);
+		authenticatedUser.setFriendList(friendList);
 		
-		friendshipRepository.delete(friend, friendList);
+		userRepository.merge(authenticatedUser);
 		
 		return new ActionResponse(ErrorCode.SUCCESS);
 	}
@@ -95,9 +94,9 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		
 		Friendship friend = null;
 		
-		List<Friendship> friendList = friendshipRepository.findById(authenticatedUser.getId());
+		List<Friendship> friendList = authenticatedUser.getFriendList();
 		if(friendList != null && !friendList.isEmpty()){
-			Optional<Friendship> friendship = friendList.stream().filter(x -> x.getTarget().getId().equals(request.getFriendId())).findFirst();
+			Optional<Friendship> friendship = friendList.stream().filter(x -> x.getUser().getId().equals(request.getFriendId())).findFirst();
 			if(friendship.isPresent()){
 				friend = friendship.get(); 
 			}
@@ -111,7 +110,7 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		}
 		
 		friend.setActive(false);
-		friendshipRepository.merge(friend, friendList);
+		userRepository.merge(authenticatedUser);
 		
 		return new ActionResponse(ErrorCode.SUCCESS);
 	}
@@ -124,12 +123,12 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		
 		UserListResponse response = new UserListResponse(ErrorCode.SUCCESS);
 		
-		List<Friendship> friendshipList = friendshipRepository.findById(authenticatedUser.getId());
+		List<Friendship> friendshipList = authenticatedUser.getFriendList();
 		if(friendshipList == null || friendshipList.isEmpty()){
 			return response;
 		}
 
-		friendshipList.stream().filter(x -> x.isActive()).forEach(y -> response.addUser(y.getTarget().getId(), y.getTarget().getUsername(), y.getTarget().getFirstname(), y.getTarget().getLastname()));
+		friendshipList.stream().filter(x -> x.isActive()).forEach(y -> response.addUser(y.getUser().getId(), y.getUser().getUsername(), y.getUser().getFirstname(), y.getUser().getLastname()));
 		
 		return response;
 	}

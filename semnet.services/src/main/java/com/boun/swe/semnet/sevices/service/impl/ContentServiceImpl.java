@@ -27,7 +27,6 @@ import com.boun.swe.semnet.sevices.db.model.Comment;
 import com.boun.swe.semnet.sevices.db.model.Content;
 import com.boun.swe.semnet.sevices.db.model.Friendship;
 import com.boun.swe.semnet.sevices.db.model.User;
-import com.boun.swe.semnet.sevices.db.repo.FriendshipRepository;
 import com.boun.swe.semnet.sevices.service.BaseService;
 import com.boun.swe.semnet.sevices.service.ContentService;
 import com.boun.swe.semnet.sevices.session.SemNetSession;
@@ -37,9 +36,6 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 
 	@Autowired
 	private ContentManager contentRepository;
-	
-	@Autowired
-	private FriendshipRepository friendRepository;
 	
 	@Autowired
 	private UserManager userManager;
@@ -264,10 +260,8 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		case FRIEND:
 			List<Content> resultList = new ArrayList<>();
 			
-			List<Friendship> friendList = friendRepository.findById(authenticatedUser.getId());
-			for (Friendship friendship : friendList) {
-				resultList.addAll(friendship.getTarget().getContents());
-			}
+			List<Friendship> friendList = authenticatedUser.getFriendList();
+			friendList.stream().filter(x -> x.isActive()).forEach(y -> resultList.addAll(y.getUser().getContents()));
 			return resultList;
 		default:
 			break;

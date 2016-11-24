@@ -49,6 +49,8 @@ public class User extends BaseEntity{
     @DBRef
 	private List<Content> contents = new ArrayList<>();
     
+	private List<Friendship> friendList = new ArrayList<>();
+    
 	public User(){
 	}
 }

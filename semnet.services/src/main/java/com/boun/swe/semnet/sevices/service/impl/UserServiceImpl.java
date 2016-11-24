@@ -22,8 +22,8 @@ import com.boun.swe.semnet.commons.exception.SemNetException;
 import com.boun.swe.semnet.commons.type.ErrorCode;
 import com.boun.swe.semnet.commons.type.UserStatus;
 import com.boun.swe.semnet.commons.util.KeyUtils;
+import com.boun.swe.semnet.sevices.db.manager.UserManager;
 import com.boun.swe.semnet.sevices.db.model.User;
-import com.boun.swe.semnet.sevices.db.repo.UserRepository;
 import com.boun.swe.semnet.sevices.service.BaseService;
 import com.boun.swe.semnet.sevices.service.LoginService;
 import com.boun.swe.semnet.sevices.service.UserService;
@@ -33,7 +33,7 @@ import com.boun.swe.semnet.sevices.session.SemNetSession;
 public class UserServiceImpl extends BaseService implements UserService {
 
 	@Autowired
-	private UserRepository userRepository;
+	private UserManager userRepository;
 
 	@Autowired
 	private LoginService loginService;
@@ -147,7 +147,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		
 		final String oneTimeToken = KeyUtils.currentTimeUUID().toString();
 		user.setOneTimeToken(oneTimeToken);
-		userRepository.save(user);
+		userRepository.merge(user);
 		
 //		mailService.sendMail(request.getUsername(), "Password reset request", "You token for password renewal is " + oneTimeToken);
 		
@@ -165,7 +165,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		user.setOneTimeToken(null);
 		user.setPassword(request.getNewPassword());
 		
-		userRepository.save(user);
+		userRepository.merge(user);
 
 //		mailService.sendMail(user.getUsername(), "Password change request", "You password is updated successfully");
 		
