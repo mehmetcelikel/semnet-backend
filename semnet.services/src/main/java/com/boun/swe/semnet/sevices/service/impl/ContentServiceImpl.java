@@ -24,14 +24,12 @@ import com.boun.swe.semnet.commons.type.ErrorCode;
 import com.boun.swe.semnet.commons.util.KeyUtils;
 import com.boun.swe.semnet.sevices.db.manager.ContentManager;
 import com.boun.swe.semnet.sevices.db.manager.ImagePersistencyManager;
-import com.boun.swe.semnet.sevices.db.manager.UserManager;
 import com.boun.swe.semnet.sevices.db.model.Comment;
 import com.boun.swe.semnet.sevices.db.model.Content;
 import com.boun.swe.semnet.sevices.db.model.Friendship;
 import com.boun.swe.semnet.sevices.db.model.User;
 import com.boun.swe.semnet.sevices.service.BaseService;
 import com.boun.swe.semnet.sevices.service.ContentService;
-import com.boun.swe.semnet.sevices.session.SemNetSession;
 
 @Service
 public class ContentServiceImpl extends BaseService implements ContentService{
@@ -40,16 +38,13 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 	private ContentManager contentRepository;
 	
 	@Autowired
-	private UserManager userManager;
-	
-	@Autowired
 	private ImagePersistencyManager imagePersistencyManager;
 	
 	@Override
 	public CreateResponse create(AddContentRequest request){
 		validate(request);
 		
-		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
+		User authenticatedUser = userManager.login(request.getAuthToken(), null);
 		
 		Content content = new Content();
 		content.setDescription(request.getDescription());
@@ -68,7 +63,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 	public GetContentResponse get(BasicQueryRequest request){
 		validate(request);
 		
-		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
+		User authenticatedUser = userManager.login(request.getAuthToken(), null);
 
 		Content content = contentRepository.findById(request.getId());
 		if(content == null){
@@ -103,7 +98,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		
 		ContentListResponse resp = new ContentListResponse(ErrorCode.SUCCESS);
 		
-		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
+		User authenticatedUser = userManager.login(request.getAuthToken(), null);
 		
 		List<Content> contentList = getContentList(request, authenticatedUser);
 		if(contentList == null || contentList.isEmpty()){
@@ -140,7 +135,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 			throw new SemNetException(ErrorCode.CONTENT_NOT_FOUND);
 		}
 
-		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
+		User authenticatedUser = userManager.login(request.getAuthToken(), null);
 		
 		List<User> userList = content.getLikers();
 		if(userList == null){
@@ -168,7 +163,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 			throw new SemNetException(ErrorCode.CONTENT_NOT_FOUND);
 		}
 
-		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
+		User authenticatedUser = userManager.login(request.getAuthToken(), null);
 		
 		List<User> userList = content.getLikers();
 		if(userList == null || userList.isEmpty()){
@@ -196,7 +191,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 			throw new SemNetException(ErrorCode.CONTENT_NOT_FOUND);
 		}
 
-		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
+		User authenticatedUser = userManager.login(request.getAuthToken(), null);
 		
 		Comment comment = new Comment();
 		comment.setCreationDate(new Date());
@@ -227,7 +222,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 			throw new SemNetException(ErrorCode.CONTENT_NOT_FOUND);
 		}
 
-		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
+		User authenticatedUser = userManager.login(request.getAuthToken(), null);
 		
 		List<Comment> commentList = content.getComments();
 		if(commentList == null  || commentList.isEmpty()){

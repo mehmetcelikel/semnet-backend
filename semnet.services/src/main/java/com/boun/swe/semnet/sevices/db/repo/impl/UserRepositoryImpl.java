@@ -22,17 +22,6 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     @Autowired private MongoTemplate mongoTemplate;
 
 	@Override
-	public User findByUsernameAndPassword(String username, String password) {
-    	
-    	System.out.println("QUERY UserRepositoryImpl.findByUsernameAndPassword RUNNING");
-    	
-		Query query = new Query();
-		query.addCriteria(Criteria.where("username").is(username).and("password").is(password));
-		
-		return mongoTemplate.findOne(query, User.class);
-	}
-
-	@Override
 	public User findByUsername(String username) {
     	
 		System.out.println("QUERY UserRepositoryImpl.findByUsername RUNNING");

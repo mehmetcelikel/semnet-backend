@@ -2,7 +2,8 @@ package com.boun.swe.semnet.sevices.service.impl;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.boun.swe.semnet.commons.data.request.AuthenticationRequest;
@@ -22,33 +23,26 @@ import com.boun.swe.semnet.commons.exception.SemNetException;
 import com.boun.swe.semnet.commons.type.ErrorCode;
 import com.boun.swe.semnet.commons.type.UserStatus;
 import com.boun.swe.semnet.commons.util.KeyUtils;
-import com.boun.swe.semnet.sevices.db.manager.UserManager;
 import com.boun.swe.semnet.sevices.db.model.User;
 import com.boun.swe.semnet.sevices.service.BaseService;
-import com.boun.swe.semnet.sevices.service.LoginService;
 import com.boun.swe.semnet.sevices.service.UserService;
-import com.boun.swe.semnet.sevices.session.SemNetSession;
 
 @Service
 public class UserServiceImpl extends BaseService implements UserService {
 
-	@Autowired
-	private UserManager userRepository;
-
-	@Autowired
-	private LoginService loginService;
+	private final static Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 	
 	@Override
 	public CreateResponse create(CreateUserRequest request) {
 
 		validateFields(request);
 		
-		User user = userRepository.findByUsername(request.getUsername());
+		User user = userManager.findByUsername(request.getUsername());
 		if(user != null){
 			throw new SemNetException(ErrorCode.DUPLICATE_USER);
 		}
 
-		user = userRepository.merge(mapUser(request));
+		user = userManager.merge(mapUser(request));
 
 		return new CreateResponse(ErrorCode.SUCCESS, user.getId());
 	}
@@ -58,7 +52,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		
 		validate(request);
 		
-		User user = userRepository.findById(request.getId());
+		User user = userManager.findById(request.getId());
 		
 		GetUserResponse response = new GetUserResponse(ErrorCode.SUCCESS);
 		response.setUsername(user.getUsername());
@@ -74,7 +68,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		
 		validate(request);
 		
-		List<User> userlist = userRepository.searchUser(request.getQueryString());
+		List<User> userlist = userManager.searchUser(request.getQueryString());
 		if(userlist == null || userlist.isEmpty()){
 			throw new SemNetException(ErrorCode.USER_NOT_FOUND);
 		}
@@ -92,19 +86,17 @@ public class UserServiceImpl extends BaseService implements UserService {
 
 		validate(request);
 		
-		//TODO only admins and profile owners should be able to updateUser
-
-		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
+		User authenticatedUser = userManager.login(request.getAuthToken(), null);
 		if(!authenticatedUser.getId().equalsIgnoreCase(request.getId())){
 			throw new SemNetException(ErrorCode.INVALID_INPUT);
 		}
 		
-		User user =	userRepository.findById(request.getId());
+		User user =	userManager.findById(request.getId());
 
 		user.setFirstname(request.getFirstname());
 		user.setLastname(request.getLastname());
 
-		userRepository.merge(user);
+		userManager.merge(user);
 
 		return new ActionResponse(ErrorCode.SUCCESS);
 	}
@@ -113,15 +105,47 @@ public class UserServiceImpl extends BaseService implements UserService {
 	public LoginResponse login(AuthenticationRequest request) {
 
 		// TODO password must be stored encrypted
-		User user = userRepository.findByUsernameAndPassword(request.getUsername(), request.getPassword());
-
+		User user = userManager.findByUsername(request.getUsername());
 		if (user == null) {
+			throw new SemNetException(ErrorCode.USER_NOT_FOUND);
+		}
+		
+		if(!user.getPassword().equals(request.getPassword())){
 			throw new SemNetException(ErrorCode.USER_NOT_FOUND);
 		}
 
 		LoginResponse response = new LoginResponse(ErrorCode.SUCCESS);
-		response.setToken(loginService.login(user).getToken());
 		response.setId(user.getId());
+		
+		String token = user.getToken();
+		if(token == null){
+			
+			logger.info("Token is null");
+			
+			token = KeyUtils.currentTimeUUID().toString();
+			user = userManager.login(token, user);
+			
+			userManager.updateCache(user);
+			
+		}else{
+			
+			logger.info("Token is not null:" + token);
+			
+			User cachedUser = userManager.login(token, null);
+			if(cachedUser == null){
+				
+				logger.info("User is null:" + token);
+				
+				token = KeyUtils.currentTimeUUID().toString();
+				user = userManager.login(token, user);
+				
+				logger.info("User is null newToken:" + token);
+				
+				userManager.updateCache(user);
+			}
+		}
+		
+		response.setToken(token);
 		
 		return response;
 	}
@@ -131,8 +155,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 
 		validate(request);
 		
-		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
-		loginService.logout(authenticatedUser);
+		userManager.logout(request.getAuthToken());
 		
 		return new ActionResponse(ErrorCode.SUCCESS);
 	}
@@ -140,14 +163,14 @@ public class UserServiceImpl extends BaseService implements UserService {
 	@Override
 	public ActionResponse resetPassword(final ResetPasswordRequest request) {
 		
-		User user = userRepository.findByUsername(request.getUsername());
+		User user = userManager.findByUsername(request.getUsername());
 		if(user == null){
 			throw new SemNetException(ErrorCode.USER_NOT_FOUND);
 		}
 		
 		final String oneTimeToken = KeyUtils.currentTimeUUID().toString();
 		user.setOneTimeToken(oneTimeToken);
-		userRepository.merge(user);
+		userManager.merge(user);
 		
 //		mailService.sendMail(request.getUsername(), "Password reset request", "You token for password renewal is " + oneTimeToken);
 		
@@ -157,7 +180,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 	@Override
 	public ActionResponse changePassword(ChangePasswordRequest request) {
 		
-		final User user = userRepository.findByOneTimeToken(request.getOneTimeToken());
+		final User user = userManager.findByOneTimeToken(request.getOneTimeToken());
 		if(user == null){
 			throw new SemNetException(ErrorCode.USER_NOT_FOUND);
 		}
@@ -165,7 +188,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		user.setOneTimeToken(null);
 		user.setPassword(request.getNewPassword());
 		
-		userRepository.merge(user);
+		userManager.merge(user);
 
 //		mailService.sendMail(user.getUsername(), "Password change request", "You password is updated successfully");
 		

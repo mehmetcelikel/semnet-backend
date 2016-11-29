@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.boun.swe.semnet.commons.data.request.BaseRequest;
@@ -13,29 +12,25 @@ import com.boun.swe.semnet.commons.data.response.ActionResponse;
 import com.boun.swe.semnet.commons.data.response.UserListResponse;
 import com.boun.swe.semnet.commons.exception.SemNetException;
 import com.boun.swe.semnet.commons.type.ErrorCode;
-import com.boun.swe.semnet.sevices.db.manager.UserManager;
 import com.boun.swe.semnet.sevices.db.model.Friendship;
 import com.boun.swe.semnet.sevices.db.model.User;
 import com.boun.swe.semnet.sevices.service.BaseService;
 import com.boun.swe.semnet.sevices.service.FriendService;
-import com.boun.swe.semnet.sevices.session.SemNetSession;
 
 @Service
 public class FriendServiceImpl extends BaseService implements FriendService{
 
-	@Autowired
-	private UserManager userRepository;
-	
 	@Override
 	public ActionResponse addFriend(FriendRequest request) {
 		validate(request);
 		
-		User user = userRepository.findById(request.getFriendId());
+		User user = userManager.findById(request.getFriendId());
 		if(user == null){
 			throw new SemNetException(ErrorCode.USER_NOT_FOUND);
 		}
 		
-		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
+		User authenticatedUser = userManager.login(request.getAuthToken(), user);
+		
 		if(request.getFriendId().equals(authenticatedUser.getId())){
 			throw new SemNetException(ErrorCode.CANNOT_ADD_SAME_USER_AS_FRIEND);
 		}
@@ -54,7 +49,7 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		
 		authenticatedUser.getFriendList().add(friendship);
 		
-		userRepository.merge(authenticatedUser);
+		userManager.merge(authenticatedUser);
 		
 		return new ActionResponse(ErrorCode.SUCCESS);
 	}
@@ -63,7 +58,7 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 	public ActionResponse removeFriend(FriendRequest request) {
 		validate(request);
 		
-		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
+		User authenticatedUser = userManager.login(request.getAuthToken(), null);
 		
 		Friendship friend = null;
 		
@@ -81,7 +76,7 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		friendList.remove(friend);
 		authenticatedUser.setFriendList(friendList);
 		
-		userRepository.merge(authenticatedUser);
+		userManager.merge(authenticatedUser);
 		
 		return new ActionResponse(ErrorCode.SUCCESS);
 	}
@@ -90,7 +85,7 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 	public ActionResponse blockFriend(FriendRequest request) {
 		validate(request);
 		
-		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
+		User authenticatedUser = userManager.login(request.getAuthToken(), null);
 		
 		Friendship friend = null;
 		
@@ -110,7 +105,7 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		}
 		
 		friend.setActive(false);
-		userRepository.merge(authenticatedUser);
+		userManager.merge(authenticatedUser);
 		
 		return new ActionResponse(ErrorCode.SUCCESS);
 	}
@@ -119,7 +114,7 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 	public UserListResponse listFriends(BaseRequest request) {
 		validate(request);
 		
-		User authenticatedUser = SemNetSession.getInstance().getUser(request.getAuthToken());
+		User authenticatedUser = userManager.login(request.getAuthToken(), null);
 		
 		UserListResponse response = new UserListResponse(ErrorCode.SUCCESS);
 		

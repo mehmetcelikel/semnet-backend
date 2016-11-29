@@ -6,8 +6,6 @@ import com.boun.swe.semnet.sevices.db.model.User;
 
 public interface UserRepositoryCustom {
 
-    User findByUsernameAndPassword(String username, String password);
-    
     User findByUsername(String username);
     
     User findByOneTimeToken(String oneTimeToken);

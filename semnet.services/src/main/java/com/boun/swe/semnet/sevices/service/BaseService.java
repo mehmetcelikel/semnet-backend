@@ -8,15 +8,19 @@ import javax.validation.Validator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.boun.swe.semnet.commons.data.request.BaseRequest;
 import com.boun.swe.semnet.commons.exception.SemNetException;
 import com.boun.swe.semnet.commons.type.ErrorCode;
-import com.boun.swe.semnet.sevices.session.SemNetSession;
+import com.boun.swe.semnet.sevices.db.manager.UserManager;
+import com.boun.swe.semnet.sevices.db.model.User;
 
 public abstract class BaseService {
 
-
+	@Autowired
+	protected UserManager userManager;
+	
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     protected void validateFields(Object request) throws SemNetException {
@@ -36,7 +40,9 @@ public abstract class BaseService {
     		throw new SemNetException(ErrorCode.INVALID_INPUT, "Authentication token field is empty");
     	}
     	
-    	if (!SemNetSession.getInstance().validateToken(request.getAuthToken())) {
+    	User user = userManager.login(request.getAuthToken(), null);
+    	
+    	if (user == null) {
     		throw new SemNetException(ErrorCode.OPERATION_NOT_ALLOWED, "");
 		}
     	

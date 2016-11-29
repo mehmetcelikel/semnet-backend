@@ -6,8 +6,6 @@ import com.boun.swe.semnet.sevices.db.model.User;
 
 public interface UserManager {
 
-	public User findByUsernameAndPassword(String username, String password);
-
 	public User findByUsername(String username);
 		
 	public User findByOneTimeToken(String oneTimeToken);
@@ -17,4 +15,8 @@ public interface UserManager {
 	public User findById(String id);
 		
 	public User merge(User user);
+	public User updateCache(User user);
+	
+	User login(String authToken, User user);
+	void logout(String authToken);
 }
