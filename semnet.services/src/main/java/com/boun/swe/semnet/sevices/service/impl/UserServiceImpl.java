@@ -25,7 +25,6 @@ import com.boun.swe.semnet.commons.type.ErrorCode;
 import com.boun.swe.semnet.commons.type.UserStatus;
 import com.boun.swe.semnet.commons.util.KeyUtils;
 import com.boun.swe.semnet.sevices.db.manager.ImagePersistencyManager;
-import com.boun.swe.semnet.sevices.db.model.Content;
 import com.boun.swe.semnet.sevices.db.model.User;
 import com.boun.swe.semnet.sevices.service.BaseService;
 import com.boun.swe.semnet.sevices.service.UserService;
@@ -49,8 +48,14 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 
 		user = userManager.merge(mapUser(request));
-
-		return new CreateResponse(ErrorCode.SUCCESS, user.getId());
+		
+		AuthenticationRequest authReq = new AuthenticationRequest();
+		authReq.setPassword(request.getPassword());
+		authReq.setUsername(request.getUsername());
+		
+		LoginResponse response = login(authReq);
+		
+		return new CreateResponse(ErrorCode.SUCCESS, user.getId(), response.getToken());
 	}
 
 	@Override

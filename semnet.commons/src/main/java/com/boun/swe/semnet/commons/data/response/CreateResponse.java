@@ -14,6 +14,7 @@ import lombok.EqualsAndHashCode;
 public class CreateResponse extends ActionResponse {
 
 	private String id;
+	private String token;
 	
 	public CreateResponse(ErrorCode code) {
 		super(code);
@@ -28,5 +29,11 @@ public class CreateResponse extends ActionResponse {
 		super(code);
 		
 		this.id = id;
+	}
+	
+	public CreateResponse(ErrorCode code, String id, String token){
+		this(code, id);
+		
+		this.token = token;
 	}
 }
