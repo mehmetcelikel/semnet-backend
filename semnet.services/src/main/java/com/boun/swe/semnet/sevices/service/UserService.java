@@ -32,4 +32,7 @@ public interface UserService {
     GetUserResponse get(BasicQueryRequest request);
     
     UserListResponse search(BasicSearchRequest request);
+    
+    ActionResponse uploadProfileImage(String authToken, byte[] image, String filename, String userId);
+    byte[] downloadProfileImage(String authToken, String userId);
 }

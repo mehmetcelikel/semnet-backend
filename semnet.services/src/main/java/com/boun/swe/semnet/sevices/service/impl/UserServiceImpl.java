@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.boun.swe.semnet.commons.data.request.AuthenticationRequest;
@@ -23,6 +24,8 @@ import com.boun.swe.semnet.commons.exception.SemNetException;
 import com.boun.swe.semnet.commons.type.ErrorCode;
 import com.boun.swe.semnet.commons.type.UserStatus;
 import com.boun.swe.semnet.commons.util.KeyUtils;
+import com.boun.swe.semnet.sevices.db.manager.ImagePersistencyManager;
+import com.boun.swe.semnet.sevices.db.model.Content;
 import com.boun.swe.semnet.sevices.db.model.User;
 import com.boun.swe.semnet.sevices.service.BaseService;
 import com.boun.swe.semnet.sevices.service.UserService;
@@ -31,6 +34,9 @@ import com.boun.swe.semnet.sevices.service.UserService;
 public class UserServiceImpl extends BaseService implements UserService {
 
 	private final static Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+	
+	@Autowired
+	private ImagePersistencyManager imagePersistencyManager;
 	
 	@Override
 	public CreateResponse create(CreateUserRequest request) {
@@ -205,5 +211,34 @@ public class UserServiceImpl extends BaseService implements UserService {
 		user.setUsername(request.getUsername());
 		
 		return user;
+	}
+	
+	@Override
+	public ActionResponse uploadProfileImage(String authToken, byte[] image, String filename, String userId) {
+		
+		BaseRequest request = new BaseRequest();
+		request.setAuthToken(authToken);
+		
+		validate(request);
+		
+		User user = userManager.findById(userId);
+		if(user == null){
+			throw new SemNetException(ErrorCode.CONTENT_NOT_FOUND);
+		}
+		
+		imagePersistencyManager.saveProfileImage(userId, image);
+		
+		return new ActionResponse(ErrorCode.SUCCESS);
+	}
+	
+	@Override
+	public byte[] downloadProfileImage(String authToken, String userId) {
+		
+		BaseRequest request = new BaseRequest();
+		request.setAuthToken(authToken);
+		
+		validate(request);
+		
+		return imagePersistencyManager.getProfileImage(userId);
 	}
 }
