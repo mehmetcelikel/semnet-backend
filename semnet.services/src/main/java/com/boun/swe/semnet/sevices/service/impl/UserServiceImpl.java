@@ -93,6 +93,25 @@ public class UserServiceImpl extends BaseService implements UserService {
 	}
 	
 	@Override
+	public UserListResponse getAllUserList(BaseRequest request){
+		
+		validate(request);
+		
+		UserListResponse response = new UserListResponse(ErrorCode.SUCCESS);
+		
+		List<User> userlist = userManager.getAllUsers();
+		if(userlist == null || userlist.isEmpty()){
+			return response;
+		}
+		
+		for (User user : userlist) {
+			response.addUser(user.getId(), user.getUsername(), user.getFirstname(), user.getLastname());
+		}
+		
+		return response;
+	}
+	
+	@Override
 	public ActionResponse update(UpdateUserRequest request) {
 
 		validate(request);

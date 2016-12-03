@@ -19,4 +19,6 @@ public interface UserManager {
 	
 	User login(String authToken, User user);
 	void logout(String authToken);
+	
+	public List<User> getAllUsers();
 }

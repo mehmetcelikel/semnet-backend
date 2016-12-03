@@ -218,5 +218,19 @@ public class UserController {
     	}
     }
     
-    
+    @ApiOperation(value="Query All Users")
+    @RequestMapping(value="queryAllUsers", method = RequestMethod.POST)
+    @ApiResponses(value={@ApiResponse(code=200, message = "Success")})
+    public @ResponseBody UserListResponse queryAllUsers(@RequestBody BaseRequest request){
+    	
+    	try{
+    		return userService.getAllUserList(request);	
+    		
+    	}catch (SemNetException e) {
+    		
+    		logger.error("Error occured while running getAllUserList service, code->" + e.getErrorCode());
+			
+    		return new UserListResponse(e.getErrorCode(), e.getErrors());
+    	}
+    }
 }

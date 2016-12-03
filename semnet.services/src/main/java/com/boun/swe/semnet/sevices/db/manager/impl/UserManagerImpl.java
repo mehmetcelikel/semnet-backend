@@ -63,6 +63,11 @@ public class UserManagerImpl implements UserManager{
 		return userRepository.searchUser(queryString);
 	}
 	
+	@Override
+	public List<User> getAllUsers() {
+		return userRepository.findAll();
+	}
+	
 	@Cacheable(value="tokenCache", key="#authToken", unless = "#result == null")
 	@Override
 	public User login(String authToken, User user) {

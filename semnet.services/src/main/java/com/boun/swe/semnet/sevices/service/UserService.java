@@ -35,4 +35,6 @@ public interface UserService {
     
     ActionResponse uploadProfileImage(String authToken, byte[] image, String filename, String userId);
     byte[] downloadProfileImage(String authToken, String userId);
+    
+    UserListResponse getAllUserList(BaseRequest request);
 }
