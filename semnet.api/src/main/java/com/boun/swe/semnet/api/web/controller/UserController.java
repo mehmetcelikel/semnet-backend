@@ -94,6 +94,9 @@ public class UserController {
 
 			byte[] image =  userService.downloadProfileImage(authToken, userId);
 
+			if(image == null){
+				return;
+			}
 			response.setContentType("application/force-download");
 			response.setContentLength((int) image.length);
 			response.setHeader("Content-Transfer-Encoding", "binary");

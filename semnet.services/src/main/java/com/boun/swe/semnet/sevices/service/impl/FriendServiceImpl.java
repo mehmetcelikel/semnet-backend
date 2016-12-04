@@ -30,6 +30,7 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		}
 		
 		User authenticatedUser = userManager.login(request.getAuthToken(), user);
+		authenticatedUser = userManager.findById(authenticatedUser.getId());
 		
 		if(request.getFriendId().equals(authenticatedUser.getId())){
 			throw new SemNetException(ErrorCode.CANNOT_ADD_SAME_USER_AS_FRIEND);
@@ -59,6 +60,7 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		validate(request);
 		
 		User authenticatedUser = userManager.login(request.getAuthToken(), null);
+		authenticatedUser = userManager.findById(authenticatedUser.getId());
 		
 		Friendship friend = null;
 		
@@ -86,6 +88,7 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		validate(request);
 		
 		User authenticatedUser = userManager.login(request.getAuthToken(), null);
+		authenticatedUser = userManager.findById(authenticatedUser.getId());
 		
 		Friendship friend = null;
 		
@@ -115,6 +118,7 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		validate(request);
 		
 		User authenticatedUser = userManager.login(request.getAuthToken(), null);
+		authenticatedUser = userManager.findById(authenticatedUser.getId());
 		
 		UserListResponse response = new UserListResponse(ErrorCode.SUCCESS);
 		
