@@ -6,7 +6,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.boun.swe.semnet.commons.data.request.BaseRequest;
+import com.boun.swe.semnet.commons.data.request.BasicQueryRequest;
 import com.boun.swe.semnet.commons.data.request.FriendRequest;
 import com.boun.swe.semnet.commons.data.response.ActionResponse;
 import com.boun.swe.semnet.commons.data.response.UserListResponse;
@@ -114,15 +114,14 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 	}
 	
 	@Override
-	public UserListResponse listFriends(BaseRequest request) {
+	public UserListResponse listFriends(BasicQueryRequest request) {
 		validate(request);
 		
-		User authenticatedUser = userManager.login(request.getAuthToken(), null);
-		authenticatedUser = userManager.findById(authenticatedUser.getId());
+		User user = userManager.findById(request.getId());
 		
 		UserListResponse response = new UserListResponse(ErrorCode.SUCCESS);
 		
-		List<Friendship> friendshipList = authenticatedUser.getFriendList();
+		List<Friendship> friendshipList = user.getFriendList();
 		if(friendshipList == null || friendshipList.isEmpty()){
 			return response;
 		}

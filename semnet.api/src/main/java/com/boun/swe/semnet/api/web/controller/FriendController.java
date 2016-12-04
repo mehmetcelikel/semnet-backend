@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.boun.swe.semnet.commons.data.request.BaseRequest;
+import com.boun.swe.semnet.commons.data.request.BasicQueryRequest;
 import com.boun.swe.semnet.commons.data.request.FriendRequest;
 import com.boun.swe.semnet.commons.data.response.ActionResponse;
 import com.boun.swe.semnet.commons.data.response.UserListResponse;
@@ -81,7 +82,7 @@ public class FriendController {
     @ApiOperation(value="List Friends")
     @RequestMapping(value="listFriends", method = RequestMethod.POST)
     @ApiResponses(value={@ApiResponse(code=200, message = "Success")})
-    public @ResponseBody UserListResponse listFriends(@RequestBody BaseRequest request){
+    public @ResponseBody UserListResponse listFriends(@RequestBody BasicQueryRequest request){
     	
     	try{
     		return friendService.listFriends(request);	
