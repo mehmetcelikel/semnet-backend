@@ -75,7 +75,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		}
 		
 		GetContentResponse resp = new GetContentResponse(ErrorCode.SUCCESS);
-		resp.setContentDetails(content.getId(), content.getDescription(), content.getCreationDate(), content.getOwner().getId());
+		resp.setContentDetails(content.getId(), content.getDescription(), content.getCreationDate(), content.getOwner().getId(), content.getOwner().getUsername(), content.isHasImage(), content.getLikeCount());
 		
 		if(content.getComments() != null && !content.getComments().isEmpty()){
 			for (Comment c : content.getComments()) {

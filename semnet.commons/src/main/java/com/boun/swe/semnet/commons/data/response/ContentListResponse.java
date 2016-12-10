@@ -26,11 +26,11 @@ public class ContentListResponse extends ActionResponse {
 		setErrors(errors);
 	}
 	
-	public void addContent(String id, String description, String ownerId, Date creationDate){
+	public void addContent(String id, String description, String ownerId, Date creationDate, String ownerUsername, boolean hasImage, int likeCount){
 		if(contentList == null){
 			contentList = new ArrayList<ContentObj>();
 		}
-		contentList.add(new ContentObj(id, description, creationDate, ownerId));
+		contentList.add(new ContentObj(id, description, creationDate, ownerId, ownerUsername, hasImage, likeCount));
 	}
 	
 	public void addContent(ContentObj content){
