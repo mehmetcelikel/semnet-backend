@@ -50,6 +50,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		content.setDescription(request.getDescription());
 		content.setCreationDate(new Date());
 		content.setOwner(authenticatedUser);
+		content.setHasImage(request.isHasImage());
 		
 		authenticatedUser.getContents().add(content);
 		

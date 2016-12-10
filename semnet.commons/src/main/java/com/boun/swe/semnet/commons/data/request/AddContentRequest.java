@@ -8,4 +8,5 @@ import lombok.EqualsAndHashCode;
 public class AddContentRequest extends BaseRequest{
 	
 	private String description;
+	private boolean hasImage;
 }
