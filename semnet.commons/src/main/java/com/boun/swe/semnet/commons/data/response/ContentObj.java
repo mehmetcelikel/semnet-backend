@@ -16,15 +16,21 @@ public class ContentObj{
 	private String description;
 	private Date creationDate;
 	private String ownerId;
+	private String ownerUsername;
+	private boolean hasImage;
+	private int likeCount;
 	
 	private List<CommentObj> commentList;
 	private List<UserObj> likerList;
 	
-	public ContentObj(String id, String description, Date creationDate, String ownerId){
+	public ContentObj(String id, String description, Date creationDate, String ownerId, String ownerUsername, boolean hasImage, int likeCount){
 		this.id = id;
 		this.description = description;
 		this.creationDate = creationDate;
 		this.ownerId = ownerId;
+		this.ownerUsername = ownerUsername;
+		this.hasImage = hasImage;
+		this.likeCount = likeCount;
 	}
 	
 	public void addToLikerList(String id, String username){

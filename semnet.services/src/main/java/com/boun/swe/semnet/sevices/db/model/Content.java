@@ -31,6 +31,7 @@ public class Content extends BaseEntity{
 	private List<User> likers;
 	
 	private int likeCount = 0;
+	private boolean hasImage;
 	
 	@DBRef
 	private List<Comment> comments;

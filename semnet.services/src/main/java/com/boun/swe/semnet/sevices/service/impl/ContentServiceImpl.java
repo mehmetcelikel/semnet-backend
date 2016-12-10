@@ -106,7 +106,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		}
 
 		for (Content content : contentList) {
-			ContentObj obj = new ContentObj(content.getId(), content.getDescription(), content.getCreationDate(), content.getOwner().getId());
+			ContentObj obj = new ContentObj(content.getId(), content.getDescription(), content.getCreationDate(), content.getOwner().getId(), content.getOwner().getUsername(), content.isHasImage(), content.getLikeCount());
 			
 			if(content.getComments() != null && !content.getComments().isEmpty()){
 				for (Comment c : content.getComments()) {
