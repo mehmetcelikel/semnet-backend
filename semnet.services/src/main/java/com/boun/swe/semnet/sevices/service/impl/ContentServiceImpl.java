@@ -261,6 +261,8 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		case FRIEND:
 			List<Content> resultList = new ArrayList<>();
 			
+			logger.info("contentList->" + authenticatedUser.getId() + ", FriendCount->" + authenticatedUser.getFriendList().size());
+			
 			List<Friendship> friendList = authenticatedUser.getFriendList();
 			friendList.stream().filter(x -> x.isActive()).forEach(y -> resultList.addAll(y.getUser().getContents()));
 			return resultList;

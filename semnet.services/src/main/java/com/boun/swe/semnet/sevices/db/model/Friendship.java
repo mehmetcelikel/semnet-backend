@@ -2,8 +2,6 @@ package com.boun.swe.semnet.sevices.db.model;
 
 import java.util.Date;
 
-import org.springframework.data.mongodb.core.mapping.DBRef;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -18,7 +16,6 @@ public class Friendship extends BaseEntity{
 
 	private static final long serialVersionUID = -1629115676756775849L;
 
-	@DBRef
 	private User user;
 	
 	private Date creationTime;

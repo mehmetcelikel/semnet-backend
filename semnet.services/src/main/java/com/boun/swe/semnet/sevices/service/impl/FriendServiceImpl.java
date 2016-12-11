@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.boun.swe.semnet.commons.data.request.BasicQueryRequest;
@@ -20,6 +22,8 @@ import com.boun.swe.semnet.sevices.service.FriendService;
 @Service
 public class FriendServiceImpl extends BaseService implements FriendService{
 
+	private final static Logger logger = LoggerFactory.getLogger(FriendServiceImpl.class);
+	
 	@Override
 	public ActionResponse addFriend(FriendRequest request) {
 		validate(request);
@@ -51,6 +55,8 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		authenticatedUser.getFriendList().add(friendship);
 		
 		userManager.merge(authenticatedUser);
+		
+		logger.info("addFriend->" + authenticatedUser.getId() + ", FriendCount->" + authenticatedUser.getFriendList().size());
 		
 		return new ActionResponse(ErrorCode.SUCCESS);
 	}
