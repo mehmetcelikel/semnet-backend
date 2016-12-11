@@ -45,6 +45,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		validate(request);
 		
 		User authenticatedUser = userManager.login(request.getAuthToken(), null);
+		authenticatedUser = userManager.findById(authenticatedUser.getId());
 		
 		Content content = new Content();
 		content.setDescription(request.getDescription());
@@ -166,6 +167,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		}
 
 		User authenticatedUser = userManager.login(request.getAuthToken(), null);
+		authenticatedUser = userManager.findById(authenticatedUser.getId());
 		
 		List<User> userList = content.getLikers();
 		if(userList == null || userList.isEmpty()){
