@@ -146,7 +146,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 			userList = new ArrayList<>();
 		}
 		
-		if(!userList.contains(authenticatedUser)){
+		if(!isUserFound(userList, authenticatedUser)){
 			userList.add(authenticatedUser);	
 		}
 		
@@ -176,15 +176,26 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 			content.setLikeCount(0);
 			contentRepository.merge(content);
 			
-		}else if(userList.contains(authenticatedUser)){
+		}else if(isUserFound(userList, authenticatedUser)){
 			
-			userList.remove(authenticatedUser);
+			userList = getDiffList(userList, authenticatedUser);
 			content.setLikeCount(userList.size());
+			content.setLikers(userList);
 			
 			contentRepository.merge(content);
 		}
 		
 		return new ActionResponse(ErrorCode.SUCCESS);
+	}
+	
+	public List<User> getDiffList(List<User> userList, User user){
+		List<User> newList = new ArrayList<>();
+		for (User u : userList) {
+			if(!u.getId().equals(user.getId())){
+				newList.add(u);
+			}
+		}
+		return newList;
 	}
 	
 	@Override
@@ -303,5 +314,20 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		validate(request);
 		
 		return imagePersistencyManager.getImage(contentId);
+	}
+	
+	private boolean isUserFound(List<User> userList, User authenticatedUser){
+		if(userList == null || userList.isEmpty()){
+			return false;
+		}
+		
+		boolean found = false;
+		for (User user : userList) {
+			if(user.getId().equals(authenticatedUser.getId())){
+				found = true;
+				break;
+			}
+		}
+		return found;
 	}
 }
