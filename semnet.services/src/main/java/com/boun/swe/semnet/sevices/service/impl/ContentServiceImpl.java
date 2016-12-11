@@ -15,6 +15,7 @@ import com.boun.swe.semnet.commons.data.request.BasicQueryRequest;
 import com.boun.swe.semnet.commons.data.request.DeleteCommentRequest;
 import com.boun.swe.semnet.commons.data.request.ListContentRequest;
 import com.boun.swe.semnet.commons.data.response.ActionResponse;
+import com.boun.swe.semnet.commons.data.response.CommentListResponse;
 import com.boun.swe.semnet.commons.data.response.ContentListResponse;
 import com.boun.swe.semnet.commons.data.response.ContentObj;
 import com.boun.swe.semnet.commons.data.response.CreateResponse;
@@ -139,6 +140,35 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 			}
 			
 			resp.addContent(obj);
+		}
+		
+		return resp;
+	}
+	
+	@Override
+	public CommentListResponse listComments(BasicQueryRequest request){
+		validate(request);
+		
+		CommentListResponse resp = new CommentListResponse(ErrorCode.SUCCESS);
+		
+		User authenticatedUser = userManager.login(request.getAuthToken(), null);
+		authenticatedUser = userManager.findById(authenticatedUser.getId());
+		
+		Content content = contentRepository.findById(request.getId());
+		if(content == null){
+			throw new SemNetException(ErrorCode.CONTENT_NOT_FOUND);
+		}
+		
+		List<Comment> commentList = content.getComments();
+		if(commentList == null || commentList.isEmpty()){
+			return resp;
+		}
+		
+		for (Comment comment : commentList) {
+			
+			User commentOwner = userManager.findById(comment.getOwnerId());
+			
+			resp.addComment(comment.getId(), comment.getDescription(), comment.getOwnerId(), comment.getCreationDate(), commentOwner.getUsername());
 		}
 		
 		return resp;

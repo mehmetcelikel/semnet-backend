@@ -21,6 +21,7 @@ import com.boun.swe.semnet.commons.data.request.AddContentRequest;
 import com.boun.swe.semnet.commons.data.request.BasicQueryRequest;
 import com.boun.swe.semnet.commons.data.request.ListContentRequest;
 import com.boun.swe.semnet.commons.data.response.ActionResponse;
+import com.boun.swe.semnet.commons.data.response.CommentListResponse;
 import com.boun.swe.semnet.commons.data.response.ContentListResponse;
 import com.boun.swe.semnet.commons.data.response.GetContentResponse;
 import com.boun.swe.semnet.commons.data.response.LikeResponse;
@@ -130,6 +131,21 @@ public class ContentController {
     		logger.error("Error occured while running listContent service, code->" + e.getErrorCode());
     		
     		return new ContentListResponse(e.getErrorCode(), e.getErrors());
+    	}
+    }
+    
+    @ApiOperation(value="List Comments")
+    @RequestMapping(value="listComments", method = RequestMethod.POST)
+    @ApiResponses(value={@ApiResponse(code=200, message = "Success")})
+    public @ResponseBody CommentListResponse listComments(@RequestBody BasicQueryRequest request) {
+
+    	try{
+    		return contentService.listComments(request);
+    	}catch (SemNetException e) {
+    		
+    		logger.error("Error occured while running listComment service, code->" + e.getErrorCode());
+    		
+    		return new CommentListResponse(e.getErrorCode(), e.getErrors());
     	}
     }
     
