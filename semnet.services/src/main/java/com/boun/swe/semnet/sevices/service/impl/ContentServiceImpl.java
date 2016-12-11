@@ -178,7 +178,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 			
 		}else if(isUserFound(userList, authenticatedUser)){
 			
-			userList = getDiffList(userList, authenticatedUser);
+			userList = getDiffUserList(userList, authenticatedUser);
 			content.setLikeCount(userList.size());
 			content.setLikers(userList);
 			
@@ -186,16 +186,6 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		}
 		
 		return new ActionResponse(ErrorCode.SUCCESS);
-	}
-	
-	public List<User> getDiffList(List<User> userList, User user){
-		List<User> newList = new ArrayList<>();
-		for (User u : userList) {
-			if(!u.getId().equals(user.getId())){
-				newList.add(u);
-			}
-		}
-		return newList;
 	}
 	
 	@Override
@@ -255,7 +245,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 			throw new SemNetException(ErrorCode.COMMENT_DOES_NOT_BELONG_TO_YOU);
 		}
 		
-		commentList.remove(content);
+		commentList = getDiffCommentList(commentList, comment);
 		content.setComments(commentList);
 		
 		contentRepository.merge(content);
@@ -329,5 +319,25 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 			}
 		}
 		return found;
+	}
+	
+	public List<User> getDiffUserList(List<User> userList, User user){
+		List<User> newList = new ArrayList<>();
+		for (User u : userList) {
+			if(!u.getId().equals(user.getId())){
+				newList.add(u);
+			}
+		}
+		return newList;
+	}
+	
+	public List<Comment> getDiffCommentList(List<Comment> commentList, Comment comment){
+		List<Comment> newList = new ArrayList<>();
+		for (Comment u : commentList) {
+			if(!u.getId().equals(comment.getId())){
+				newList.add(u);
+			}
+		}
+		return newList;
 	}
 }

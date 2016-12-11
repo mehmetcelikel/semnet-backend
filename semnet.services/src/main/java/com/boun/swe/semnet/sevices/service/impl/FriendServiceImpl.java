@@ -1,5 +1,6 @@
 package com.boun.swe.semnet.sevices.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +15,7 @@ import com.boun.swe.semnet.commons.data.response.ActionResponse;
 import com.boun.swe.semnet.commons.data.response.UserListResponse;
 import com.boun.swe.semnet.commons.exception.SemNetException;
 import com.boun.swe.semnet.commons.type.ErrorCode;
+import com.boun.swe.semnet.commons.util.KeyUtils;
 import com.boun.swe.semnet.sevices.db.model.Friendship;
 import com.boun.swe.semnet.sevices.db.model.User;
 import com.boun.swe.semnet.sevices.service.BaseService;
@@ -51,6 +53,7 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		friendship.setActive(true);
 		friendship.setCreationTime(new Date());
 		friendship.setUser(user);
+		friendship.setId(KeyUtils.currentTimeUUID().toString());
 		
 		authenticatedUser.getFriendList().add(friendship);
 		
@@ -81,7 +84,7 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		if(friend == null){
 			throw new SemNetException(ErrorCode.FRIEND_NOT_FOUND);
 		}
-		friendList.remove(friend);
+		friendList = getDiffFriendList(friendList, friend);
 		authenticatedUser.setFriendList(friendList);
 		
 		userManager.merge(authenticatedUser);
@@ -135,5 +138,15 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		friendshipList.stream().filter(x -> x.isActive()).forEach(y -> response.addUser(y.getUser().getId(), y.getUser().getUsername(), y.getUser().getFirstname(), y.getUser().getLastname()));
 		
 		return response;
+	}
+	
+	public List<Friendship> getDiffFriendList(List<Friendship> userList, Friendship user){
+		List<Friendship> newList = new ArrayList<>();
+		for (Friendship u : userList) {
+			if(!u.getId().equals(user.getId())){
+				newList.add(u);
+			}
+		}
+		return newList;
 	}
 }
