@@ -23,6 +23,7 @@ import com.boun.swe.semnet.commons.data.request.ListContentRequest;
 import com.boun.swe.semnet.commons.data.response.ActionResponse;
 import com.boun.swe.semnet.commons.data.response.ContentListResponse;
 import com.boun.swe.semnet.commons.data.response.GetContentResponse;
+import com.boun.swe.semnet.commons.data.response.LikeResponse;
 import com.boun.swe.semnet.commons.exception.SemNetException;
 import com.boun.swe.semnet.commons.type.ErrorCode;
 import com.boun.swe.semnet.sevices.service.ContentService;
@@ -135,7 +136,7 @@ public class ContentController {
     @ApiOperation(value="Like Content")
     @RequestMapping(value="like", method = RequestMethod.POST)
     @ApiResponses(value={@ApiResponse(code=200, message = "Success")})
-    public @ResponseBody ActionResponse likeContent(@RequestBody BasicQueryRequest request) {
+    public @ResponseBody LikeResponse likeContent(@RequestBody BasicQueryRequest request) {
 
     	try{
     		return contentService.like(request);
@@ -143,14 +144,14 @@ public class ContentController {
     		
     		logger.error("Error occured while running likeContent service, code->" + e.getErrorCode());
     		
-    		return new ContentListResponse(e.getErrorCode(), e.getErrors());
+    		return new LikeResponse(e.getErrorCode(), e.getErrors());
     	}
     }
     
     @ApiOperation(value="Unlike Content")
     @RequestMapping(value="unlike", method = RequestMethod.POST)
     @ApiResponses(value={@ApiResponse(code=200, message = "Success")})
-    public @ResponseBody ActionResponse unlikeContent(@RequestBody BasicQueryRequest request) {
+    public @ResponseBody LikeResponse unlikeContent(@RequestBody BasicQueryRequest request) {
 
     	try{
     		return contentService.unLike(request);
@@ -158,7 +159,7 @@ public class ContentController {
     		
     		logger.error("Error occured while running unLikeContent service, code->" + e.getErrorCode());
     		
-    		return new ContentListResponse(e.getErrorCode(), e.getErrors());
+    		return new LikeResponse(e.getErrorCode(), e.getErrors());
     	}
     }
     

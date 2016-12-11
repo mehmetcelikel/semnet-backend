@@ -19,6 +19,7 @@ import com.boun.swe.semnet.commons.data.response.ContentListResponse;
 import com.boun.swe.semnet.commons.data.response.ContentObj;
 import com.boun.swe.semnet.commons.data.response.CreateResponse;
 import com.boun.swe.semnet.commons.data.response.GetContentResponse;
+import com.boun.swe.semnet.commons.data.response.LikeResponse;
 import com.boun.swe.semnet.commons.exception.SemNetException;
 import com.boun.swe.semnet.commons.type.ErrorCode;
 import com.boun.swe.semnet.commons.util.KeyUtils;
@@ -130,7 +131,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 	}
 	
 	@Override
-	public ActionResponse like(BasicQueryRequest request){
+	public LikeResponse like(BasicQueryRequest request){
 		validate(request);
 		
 		Content content = contentRepository.findById(request.getId());
@@ -155,11 +156,11 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		
 		contentRepository.merge(content);
 		
-		return new ActionResponse(ErrorCode.SUCCESS);
+		return new LikeResponse(ErrorCode.SUCCESS, content.getLikeCount());
 	}
 	
 	@Override
-	public ActionResponse unLike(BasicQueryRequest request){
+	public LikeResponse unLike(BasicQueryRequest request){
 		validate(request);
 		
 		Content content = contentRepository.findById(request.getId());
@@ -185,7 +186,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 			contentRepository.merge(content);
 		}
 		
-		return new ActionResponse(ErrorCode.SUCCESS);
+		return new LikeResponse(ErrorCode.SUCCESS, content.getLikeCount());
 	}
 	
 	@Override

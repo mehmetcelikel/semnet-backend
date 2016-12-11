@@ -8,6 +8,7 @@ import com.boun.swe.semnet.commons.data.request.ListContentRequest;
 import com.boun.swe.semnet.commons.data.response.ActionResponse;
 import com.boun.swe.semnet.commons.data.response.ContentListResponse;
 import com.boun.swe.semnet.commons.data.response.GetContentResponse;
+import com.boun.swe.semnet.commons.data.response.LikeResponse;
 
 public interface ContentService {
 
@@ -18,8 +19,8 @@ public interface ContentService {
 	public ActionResponse upload(String authToken, byte[] image, String filename, String contentId);
 	public byte[] downloadContent(String authToken, String contentId);
 	
-	public ActionResponse like(BasicQueryRequest request);
-	public ActionResponse unLike(BasicQueryRequest request);
+	public LikeResponse like(BasicQueryRequest request);
+	public LikeResponse unLike(BasicQueryRequest request);
 	
 	public ActionResponse addComment(AddCommentRequest request);
 	public ActionResponse deleteComment(DeleteCommentRequest request);
