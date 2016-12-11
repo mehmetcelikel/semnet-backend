@@ -54,9 +54,10 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		content.setOwnerId(authenticatedUser.getId());
 		content.setHasImage(request.isHasImage());
 		
+		contentRepository.merge(content);
+		
 		authenticatedUser.getContents().add(content.getId());
 		
-		contentRepository.merge(content);
 		userManager.merge(authenticatedUser);
 		
 		return new CreateResponse(ErrorCode.SUCCESS, content.getId());
