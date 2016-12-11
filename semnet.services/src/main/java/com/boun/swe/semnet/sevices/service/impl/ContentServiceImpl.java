@@ -139,6 +139,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		}
 
 		User authenticatedUser = userManager.login(request.getAuthToken(), null);
+		authenticatedUser = userManager.findById(authenticatedUser.getId());
 		
 		List<User> userList = content.getLikers();
 		if(userList == null){
