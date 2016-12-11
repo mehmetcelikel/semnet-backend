@@ -44,7 +44,7 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		
 		List<Friendship> friendList = authenticatedUser.getFriendList();
 		if(friendList != null && !friendList.isEmpty()){
-			Optional<Friendship> friendship = friendList.stream().filter(x -> x.getUser().getId().equals(request.getFriendId())).findFirst();
+			Optional<Friendship> friendship = friendList.stream().filter(x -> x.getUserId().equals(request.getFriendId())).findFirst();
 			if(friendship.isPresent()){
 				throw new SemNetException(ErrorCode.DUPLICATE_FRIEND);
 			}
@@ -52,7 +52,7 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		Friendship friendship = new Friendship();
 		friendship.setActive(true);
 		friendship.setCreationTime(new Date());
-		friendship.setUser(user);
+		friendship.setUserId(user.getId());
 		friendship.setId(KeyUtils.currentTimeUUID().toString());
 		
 		authenticatedUser.getFriendList().add(friendship);
@@ -75,7 +75,7 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		
 		List<Friendship> friendList = authenticatedUser.getFriendList();
 		if(friendList != null && !friendList.isEmpty()){
-			Optional<Friendship> friendship = friendList.stream().filter(x -> x.getUser().getId().equals(request.getFriendId())).findFirst();
+			Optional<Friendship> friendship = friendList.stream().filter(x -> x.getUserId().equals(request.getFriendId())).findFirst();
 			if(friendship.isPresent()){
 				friend = friendship.get(); 
 			}
@@ -103,7 +103,7 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		
 		List<Friendship> friendList = authenticatedUser.getFriendList();
 		if(friendList != null && !friendList.isEmpty()){
-			Optional<Friendship> friendship = friendList.stream().filter(x -> x.getUser().getId().equals(request.getFriendId())).findFirst();
+			Optional<Friendship> friendship = friendList.stream().filter(x -> x.getUserId().equals(request.getFriendId())).findFirst();
 			if(friendship.isPresent()){
 				friend = friendship.get(); 
 			}
@@ -135,7 +135,18 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 			return response;
 		}
 
-		friendshipList.stream().filter(x -> x.isActive()).forEach(y -> response.addUser(y.getUser().getId(), y.getUser().getUsername(), y.getUser().getFirstname(), y.getUser().getLastname()));
+		
+		for (Friendship friendship : friendshipList) {
+			
+			if(!friendship.isActive()){
+				continue;
+			}
+			
+			User friend = userManager.findById(friendship.getUserId());
+			
+			response.addUser(friend.getId(), friend.getUsername(), friend.getFirstname(), friend.getLastname());
+			
+		}
 		
 		return response;
 	}

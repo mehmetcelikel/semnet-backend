@@ -287,7 +287,14 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 			logger.info("contentList->" + authenticatedUser.getId() + ", FriendCount->" + authenticatedUser.getFriendList().size());
 			
 			List<Friendship> friendList = authenticatedUser.getFriendList();
-			friendList.stream().filter(x -> x.isActive()).forEach(y -> resultList.addAll(y.getUser().getContents()));
+			for (Friendship friendship : friendList) {
+				
+				if(!friendship.isActive()){
+					continue;
+				}
+				User f = userManager.findById(friendship.getUserId());
+				resultList.addAll(f.getContents());
+			}
 			return resultList;
 		default:
 			break;
