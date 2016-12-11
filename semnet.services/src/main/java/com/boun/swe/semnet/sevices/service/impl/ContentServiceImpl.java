@@ -154,6 +154,11 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		content.setLikeCount(userList.size());
 		content.setLikers(userList);
 		
+		User owner = userManager.findById(content.getOwner().getId());
+		List<Content> newList = merge(owner.getContents(), content);
+		owner.setContents(newList);
+		
+		userManager.merge(owner);
 		contentRepository.merge(content);
 		
 		return new LikeResponse(ErrorCode.SUCCESS, content.getLikeCount());
@@ -171,11 +176,18 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		User authenticatedUser = userManager.login(request.getAuthToken(), null);
 		authenticatedUser = userManager.findById(authenticatedUser.getId());
 		
+		User owner = userManager.findById(content.getOwner().getId());
+		
 		List<User> userList = content.getLikers();
 		if(userList == null || userList.isEmpty()){
 			
 			content.setLikeCount(0);
 			contentRepository.merge(content);
+			
+			List<Content> newList = merge(owner.getContents(), content);
+			owner.setContents(newList);
+			
+			userManager.merge(owner);
 			
 		}else if(isUserFound(userList, authenticatedUser)){
 			
@@ -184,6 +196,11 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 			content.setLikers(userList);
 			
 			contentRepository.merge(content);
+			
+			List<Content> newList = merge(owner.getContents(), content);
+			owner.setContents(newList);
+			
+			userManager.merge(owner);
 		}
 		
 		return new LikeResponse(ErrorCode.SUCCESS, content.getLikeCount());
@@ -339,6 +356,25 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 				newList.add(u);
 			}
 		}
+		return newList;
+	}
+	
+	private List<Content> merge(List<Content> contentList, Content content){
+		
+		if(contentList == null || contentList.isEmpty()){
+			return contentList;
+		}
+		
+		List<Content> newList = new ArrayList<>();
+		
+		for (Content c : contentList) {
+			if(c.getId().equals(content.getId())){
+				newList.add(content);
+			}else{
+				newList.add(c);
+			}
+		}
+		
 		return newList;
 	}
 }
