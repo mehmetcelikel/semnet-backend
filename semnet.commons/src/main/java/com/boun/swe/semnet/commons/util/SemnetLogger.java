@@ -51,7 +51,7 @@ public class SemnetLogger {
 			throw e;
 		}finally{
 			if(!isDoFilter(classMethodName)){
-				log.info(classMethodName + " operation has finished"+Arrays.toString(joinPoint.getArgs())+", elapsedTime->" + elapsedTime + " ms");	
+				log.info(classMethodName + " operation has finished, elapsedTime->" + elapsedTime + " ms");	
 			}
 		}
 	}
