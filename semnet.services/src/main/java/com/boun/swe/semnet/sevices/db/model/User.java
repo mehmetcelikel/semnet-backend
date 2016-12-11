@@ -46,8 +46,7 @@ public class User extends BaseEntity{
     @Transient
     private String token;
     
-    @DBRef
-	private List<Content> contents = new ArrayList<>();
+	private List<String> contents = new ArrayList<>();
     
 	private List<Friendship> friendList = new ArrayList<>();
     

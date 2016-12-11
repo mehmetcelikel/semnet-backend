@@ -51,10 +51,10 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		Content content = new Content();
 		content.setDescription(request.getDescription());
 		content.setCreationDate(new Date());
-		content.setOwner(authenticatedUser);
+		content.setOwnerId(authenticatedUser.getId());
 		content.setHasImage(request.isHasImage());
 		
-		authenticatedUser.getContents().add(content);
+		authenticatedUser.getContents().add(content.getId());
 		
 		contentRepository.merge(content);
 		userManager.merge(authenticatedUser);
@@ -73,21 +73,27 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 			throw new SemNetException(ErrorCode.CONTENT_NOT_FOUND);
 		}
 		
-		if(!content.getOwner().getId().equals(authenticatedUser.getId())){
+		if(!content.getOwnerId().equals(authenticatedUser.getId())){
 			throw new SemNetException(ErrorCode.CONTENT_DOES_NOT_BELONG_TO_YOU);
 		}
 		
-		GetContentResponse resp = new GetContentResponse(ErrorCode.SUCCESS);
-		resp.setContentDetails(content.getId(), content.getDescription(), content.getCreationDate(), content.getOwner().getId(), content.getOwner().getUsername(), content.isHasImage(), content.getLikeCount());
+		User owner = userManager.findById(content.getOwnerId());
 		
-		if(content.getComments() != null && !content.getComments().isEmpty()){
-			for (Comment c : content.getComments()) {
-				resp.addToCommentList(c.getId(), c.getDescription(), c.getCreationDate(), c.getOwner().getId(), c.getOwner().getUsername());		
-			}
-		}
+		GetContentResponse resp = new GetContentResponse(ErrorCode.SUCCESS);
+		resp.setContentDetails(content.getId(), content.getDescription(), content.getCreationDate(), content.getOwnerId(), owner.getUsername(), content.isHasImage(), content.getLikeCount());
+		
+//		if(content.getComments() != null && !content.getComments().isEmpty()){
+//			for (String commentId : content.getComments()) {
+//				resp.addToCommentList(c.getId(), c.getDescription(), c.getCreationDate(), c.getOwner().getId(), c.getOwner().getUsername());		
+//			}
+//		}
 		
 		if(content.getLikers() != null && !content.getLikers().isEmpty()){
-			for (User liker : content.getLikers()) {
+			for (String likerId : content.getLikers()) {
+				User liker = userManager.findById(likerId);
+				if(liker == null){
+					continue;
+				}
 				resp.addToLikerList(liker.getId(), liker.getUsername());
 			}
 		}
@@ -110,16 +116,23 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		}
 
 		for (Content content : contentList) {
-			ContentObj obj = new ContentObj(content.getId(), content.getDescription(), content.getCreationDate(), content.getOwner().getId(), content.getOwner().getUsername(), content.isHasImage(), content.getLikeCount());
 			
-			if(content.getComments() != null && !content.getComments().isEmpty()){
-				for (Comment c : content.getComments()) {
-					obj.addToCommentList(c.getId(), c.getDescription(), c.getCreationDate(), c.getOwner().getId(), c.getOwner().getUsername());		
-				}
-			}
+			User owner = userManager.findById(content.getOwnerId());
+			
+			ContentObj obj = new ContentObj(content.getId(), content.getDescription(), content.getCreationDate(), owner.getId(), owner.getUsername(), content.isHasImage(), content.getLikeCount());
+			
+//			if(content.getComments() != null && !content.getComments().isEmpty()){
+//				for (Comment c : content.getComments()) {
+//					obj.addToCommentList(c.getId(), c.getDescription(), c.getCreationDate(), c.getOwner().getId(), c.getOwner().getUsername());		
+//				}
+//			}
 			
 			if(content.getLikers() != null && !content.getLikers().isEmpty()){
-				for (User liker : content.getLikers()) {
+				for (String likerId : content.getLikers()) {
+					User liker = userManager.findById(likerId);
+					if(liker == null){
+						continue;
+					}
 					obj.addToLikerList(liker.getId(), liker.getUsername());
 				}
 			}
@@ -142,23 +155,18 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		User authenticatedUser = userManager.login(request.getAuthToken(), null);
 		authenticatedUser = userManager.findById(authenticatedUser.getId());
 		
-		List<User> userList = content.getLikers();
+		List<String> userList = content.getLikers();
 		if(userList == null){
 			userList = new ArrayList<>();
 		}
 		
-		if(!isUserFound(userList, authenticatedUser)){
-			userList.add(authenticatedUser);	
+		if(!userList.contains(authenticatedUser.getId())){
+			userList.add(authenticatedUser.getId());	
 		}
 		
 		content.setLikeCount(userList.size());
 		content.setLikers(userList);
 		
-		User owner = userManager.findById(content.getOwner().getId());
-		List<Content> newList = merge(owner.getContents(), content);
-		owner.setContents(newList);
-		
-		userManager.merge(owner);
 		contentRepository.merge(content);
 		
 		return new LikeResponse(ErrorCode.SUCCESS, content.getLikeCount());
@@ -176,31 +184,19 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		User authenticatedUser = userManager.login(request.getAuthToken(), null);
 		authenticatedUser = userManager.findById(authenticatedUser.getId());
 		
-		User owner = userManager.findById(content.getOwner().getId());
-		
-		List<User> userList = content.getLikers();
+		List<String> userList = content.getLikers();
 		if(userList == null || userList.isEmpty()){
 			
 			content.setLikeCount(0);
 			contentRepository.merge(content);
+						
+		}else if(userList.contains(authenticatedUser.getId())){
 			
-			List<Content> newList = merge(owner.getContents(), content);
-			owner.setContents(newList);
-			
-			userManager.merge(owner);
-			
-		}else if(isUserFound(userList, authenticatedUser)){
-			
-			userList = getDiffUserList(userList, authenticatedUser);
+			userList.remove(authenticatedUser.getId());
 			content.setLikeCount(userList.size());
 			content.setLikers(userList);
 			
 			contentRepository.merge(content);
-			
-			List<Content> newList = merge(owner.getContents(), content);
-			owner.setContents(newList);
-			
-			userManager.merge(owner);
 		}
 		
 		return new LikeResponse(ErrorCode.SUCCESS, content.getLikeCount());
@@ -220,7 +216,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		Comment comment = new Comment();
 		comment.setCreationDate(new Date());
 		comment.setDescription(request.getDescription());
-		comment.setOwner(authenticatedUser);
+		comment.setOwnerId(authenticatedUser.getId());
 		
 		List<Comment> commentList = content.getComments();
 		if(commentList == null){
@@ -253,13 +249,13 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 			return new ActionResponse(ErrorCode.SUCCESS);
 		}
 		
-		Optional<Comment> commentObj = commentList.stream().filter(x -> x.getOwner().getId().equals(request.getCommentId())).findFirst();
+		Optional<Comment> commentObj = commentList.stream().filter(x -> x.getOwnerId().equals(request.getCommentId())).findFirst();
 		if(!commentObj.isPresent()){
 			return new ActionResponse(ErrorCode.SUCCESS);
 		}
 		
 		Comment comment = commentObj.get();
-		if(!comment.getOwner().getId().equals(authenticatedUser.getId())){
+		if(!comment.getOwnerId().equals(authenticatedUser.getId())){
 			throw new SemNetException(ErrorCode.COMMENT_DOES_NOT_BELONG_TO_YOU);
 		}
 		
@@ -280,7 +276,23 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 			return contentRepository.findPopularContents();
 		case SPECIFIED:
 			User user = userManager.findById(request.getUserId());
-			return user != null ? user.getContents() : new ArrayList<>();
+
+			List<Content> contentList = new ArrayList<>();
+			if(user != null){
+				
+				List<String> contentIdList = user.getContents();
+				
+				for (String contentId : contentIdList) {
+					Content content = contentRepository.findById(contentId);
+					if(content == null){
+						continue;
+					}
+					contentList.add(content);
+				}
+			}
+			
+			return contentList;
+			
 		case FRIEND:
 			List<Content> resultList = new ArrayList<>();
 			
@@ -293,7 +305,16 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 					continue;
 				}
 				User f = userManager.findById(friendship.getUserId());
-				resultList.addAll(f.getContents());
+				
+				List<String> contentIdList = f.getContents();
+				
+				for (String contentId : contentIdList) {
+					Content content = contentRepository.findById(contentId);
+					if(content == null){
+						continue;
+					}
+					resultList.add(content);
+				}
 			}
 			return resultList;
 		default:
@@ -363,25 +384,6 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 				newList.add(u);
 			}
 		}
-		return newList;
-	}
-	
-	private List<Content> merge(List<Content> contentList, Content content){
-		
-		if(contentList == null || contentList.isEmpty()){
-			return contentList;
-		}
-		
-		List<Content> newList = new ArrayList<>();
-		
-		for (Content c : contentList) {
-			if(c.getId().equals(content.getId())){
-				newList.add(content);
-			}else{
-				newList.add(c);
-			}
-		}
-		
 		return newList;
 	}
 }
