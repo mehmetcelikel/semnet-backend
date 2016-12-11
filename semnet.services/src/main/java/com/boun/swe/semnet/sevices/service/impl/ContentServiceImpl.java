@@ -100,6 +100,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		ContentListResponse resp = new ContentListResponse(ErrorCode.SUCCESS);
 		
 		User authenticatedUser = userManager.login(request.getAuthToken(), null);
+		authenticatedUser = userManager.findById(authenticatedUser.getId());
 		
 		List<Content> contentList = getContentList(request, authenticatedUser);
 		if(contentList == null || contentList.isEmpty()){
