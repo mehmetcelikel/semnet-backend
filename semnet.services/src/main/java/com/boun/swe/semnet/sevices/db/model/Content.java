@@ -35,4 +35,4 @@ public class Content extends BaseEntity{
 	
 	@DBRef
 	private List<Comment> comments;
-}
+} 
