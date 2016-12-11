@@ -127,6 +127,9 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 		validate(request);
 		
 		User user = userManager.findById(request.getId());
+		if(user == null){
+			throw new SemNetException(ErrorCode.USER_NOT_FOUND);
+		}
 		
 		UserListResponse response = new UserListResponse(ErrorCode.SUCCESS);
 		

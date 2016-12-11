@@ -64,6 +64,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 		validate(request);
 		
 		User user = userManager.findById(request.getId());
+		if(user == null){
+			throw new SemNetException(ErrorCode.USER_NOT_FOUND);
+		}
 		
 		GetUserResponse response = new GetUserResponse(ErrorCode.SUCCESS);
 		response.setUsername(user.getUsername());
