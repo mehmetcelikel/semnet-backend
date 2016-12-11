@@ -8,6 +8,7 @@ import com.boun.swe.semnet.commons.data.request.ListContentRequest;
 import com.boun.swe.semnet.commons.data.response.ActionResponse;
 import com.boun.swe.semnet.commons.data.response.CommentListResponse;
 import com.boun.swe.semnet.commons.data.response.ContentListResponse;
+import com.boun.swe.semnet.commons.data.response.CreateResponse;
 import com.boun.swe.semnet.commons.data.response.GetContentResponse;
 import com.boun.swe.semnet.commons.data.response.LikeResponse;
 
@@ -23,7 +24,7 @@ public interface ContentService {
 	public LikeResponse like(BasicQueryRequest request);
 	public LikeResponse unLike(BasicQueryRequest request);
 	
-	public ActionResponse addComment(AddCommentRequest request);
+	public CreateResponse addComment(AddCommentRequest request);
 	public ActionResponse deleteComment(DeleteCommentRequest request);
 	
 	public CommentListResponse listComments(BasicQueryRequest request);

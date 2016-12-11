@@ -234,7 +234,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 	}
 	
 	@Override
-	public ActionResponse addComment(AddCommentRequest request){
+	public CreateResponse addComment(AddCommentRequest request){
 		validate(request);
 		
 		Content content = contentRepository.findById(request.getContentId());
@@ -261,7 +261,7 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		
 		contentRepository.merge(content);
 		
-		return new ActionResponse(ErrorCode.SUCCESS);
+		return new CreateResponse(ErrorCode.SUCCESS, comment.getId());
 	}
 	
 	@Override

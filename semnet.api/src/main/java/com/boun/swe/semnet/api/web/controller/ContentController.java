@@ -23,6 +23,7 @@ import com.boun.swe.semnet.commons.data.request.ListContentRequest;
 import com.boun.swe.semnet.commons.data.response.ActionResponse;
 import com.boun.swe.semnet.commons.data.response.CommentListResponse;
 import com.boun.swe.semnet.commons.data.response.ContentListResponse;
+import com.boun.swe.semnet.commons.data.response.CreateResponse;
 import com.boun.swe.semnet.commons.data.response.GetContentResponse;
 import com.boun.swe.semnet.commons.data.response.LikeResponse;
 import com.boun.swe.semnet.commons.exception.SemNetException;
@@ -182,7 +183,7 @@ public class ContentController {
     @ApiOperation(value="Add Comment to a Content")
     @RequestMapping(value="addComment", method = RequestMethod.POST)
     @ApiResponses(value={@ApiResponse(code=200, message = "Success")})
-    public @ResponseBody ActionResponse addComment(@RequestBody AddCommentRequest request) {
+    public @ResponseBody CreateResponse addComment(@RequestBody AddCommentRequest request) {
 
     	try{
     		return contentService.addComment(request);
@@ -190,7 +191,7 @@ public class ContentController {
     		
     		logger.error("Error occured while running addComment service, code->" + e.getErrorCode());
     		
-    		return new ContentListResponse(e.getErrorCode(), e.getErrors());
+    		return new CreateResponse(e.getErrorCode(), e.getErrors());
     	}
     }
     
