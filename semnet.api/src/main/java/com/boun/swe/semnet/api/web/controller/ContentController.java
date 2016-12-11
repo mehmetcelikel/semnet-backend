@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.boun.swe.semnet.commons.data.request.AddCommentRequest;
 import com.boun.swe.semnet.commons.data.request.AddContentRequest;
 import com.boun.swe.semnet.commons.data.request.BasicQueryRequest;
+import com.boun.swe.semnet.commons.data.request.DeleteCommentRequest;
 import com.boun.swe.semnet.commons.data.request.ListContentRequest;
 import com.boun.swe.semnet.commons.data.response.ActionResponse;
 import com.boun.swe.semnet.commons.data.response.CommentListResponse;
@@ -198,10 +199,10 @@ public class ContentController {
     @ApiOperation(value="Remove Comment from a Content")
     @RequestMapping(value="removeComment", method = RequestMethod.POST)
     @ApiResponses(value={@ApiResponse(code=200, message = "Success")})
-    public @ResponseBody ActionResponse removeComment(@RequestBody AddCommentRequest request) {
+    public @ResponseBody ActionResponse removeComment(@RequestBody DeleteCommentRequest request) {
 
     	try{
-    		return contentService.addComment(request);
+    		return contentService.deleteComment(request);
     	}catch (SemNetException e) {
     		
     		logger.error("Error occured while running removeComment service, code->" + e.getErrorCode());
