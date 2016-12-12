@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -34,6 +33,12 @@ public class User extends BaseEntity{
     @Field("lastname")
     private String lastname;
 
+    @Field("email")
+    private String email;
+    
+    @Field("phone")
+    private String phone;
+    
     @Field("password")
     private String password;
 

@@ -128,7 +128,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 
 		user.setFirstname(request.getFirstname());
 		user.setLastname(request.getLastname());
-
+		user.setEmail(request.getEmail());
+		user.setPhone(request.getPhone());
+		
 		userManager.merge(user);
 
 		return new ActionResponse(ErrorCode.SUCCESS);

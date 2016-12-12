@@ -13,11 +13,10 @@ public class UpdateUserRequest extends BaseRequest{
 
 	@NotNull
 	private String id;
-
 	private String firstname;
-
 	private String lastname;
-
 	private Date birthDate;
 
+	private String email;
+	private String phone;
 }
