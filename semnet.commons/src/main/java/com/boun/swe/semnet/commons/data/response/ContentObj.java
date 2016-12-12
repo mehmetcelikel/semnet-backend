@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.boun.swe.semnet.commons.util.DateUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Data;
@@ -14,7 +15,7 @@ public class ContentObj{
 	
 	private String id;
 	private String description;
-	private Date creationDate;
+	private String dateDiff;
 	private String ownerId;
 	private String ownerUsername;
 	private boolean hasImage;
@@ -26,7 +27,7 @@ public class ContentObj{
 	public ContentObj(String id, String description, Date creationDate, String ownerId, String ownerUsername, boolean hasImage, int likeCount){
 		this.id = id;
 		this.description = description;
-		this.creationDate = creationDate;
+		this.dateDiff = DateUtils.calculateDateDifference(creationDate);
 		this.ownerId = ownerId;
 		this.ownerUsername = ownerUsername;
 		this.hasImage = hasImage;
