@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.mortbay.log.Log;
+
 import com.boun.swe.semnet.commons.cache.DBPediaCache;
 import com.boun.swe.semnet.commons.data.response.QueryLabelResponse;
 import com.boun.swe.semnet.commons.dbpedia.OWLClassHierarchy.Node;
@@ -44,6 +46,8 @@ public class SPARQLRunner {
 	
 	public QueryLabelResponse runQuery(String queryString) {
 
+		System.out.println("Running sparql query");
+		
 		QueryLabelResponse response = DBPediaCache.getInstance().get(queryString);
 		if(response != null){
 			return response;
@@ -64,6 +68,9 @@ public class SPARQLRunner {
         	String label = qs.get("label").asLiteral().getString();
         	String type = qs.get("type").toString();
         	String ctgry = qs.get("ctgry").toString();
+        	
+        	System.out.println("Running sparql query ->" + label);
+        	System.out.println("Running sparql type ->" + type);
         	
         	Node node = OWLClassHierarchy.getInstance().getHierarchy().get(type);
         	if(node == null){
