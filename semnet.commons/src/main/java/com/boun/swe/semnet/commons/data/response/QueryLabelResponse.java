@@ -21,7 +21,7 @@ public class QueryLabelResponse extends ActionResponse{
 	@JsonIgnore
 	private String queryString;
 	
-	private List<DataObj> dataList;
+	private List<DataObj> dataList = new ArrayList<>();
 	
 	public QueryLabelResponse(ErrorCode code, List<ValidationError> errors) {
 		super(code);
