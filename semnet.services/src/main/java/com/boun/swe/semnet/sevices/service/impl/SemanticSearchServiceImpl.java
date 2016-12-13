@@ -27,4 +27,9 @@ public class SemanticSearchServiceImpl extends BaseService implements SemanticSe
 		
 		return SPARQLRunner.getInstance().runQuery(request.getQueryString());
 	}
+	
+	public static void main(String[] args) {
+		QueryLabelResponse resp = SPARQLRunner.getInstance().runQuery("Java");
+		System.out.println(resp);
+	}
 }

@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.mortbay.log.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.boun.swe.semnet.commons.cache.DBPediaCache;
 import com.boun.swe.semnet.commons.data.response.QueryLabelResponse;
@@ -18,6 +19,8 @@ import com.hp.hpl.jena.query.ResultSet;
 
 public class SPARQLRunner {
 
+	private final static Logger logger = LoggerFactory.getLogger(SPARQLRunner.class);
+	
 	private static SPARQLRunner instance = new SPARQLRunner();
 	
 	private String DBPEDIA_QUERY ="PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
@@ -46,12 +49,14 @@ public class SPARQLRunner {
 	
 	public QueryLabelResponse runQuery(String queryString) {
 
-		System.out.println("Running sparql query");
+		logger.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRr3");
 		
 		QueryLabelResponse response = DBPediaCache.getInstance().get(queryString);
 		if(response != null){
 			return response;
 		}
+		logger.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRr4");
+		
 		response = new QueryLabelResponse(queryString);
 		
 		String dbpeaidSparqlQueryString = String.format(DBPEDIA_QUERY, queryString);
@@ -122,6 +127,8 @@ public class SPARQLRunner {
 	        	response.addData(label, current.getLabel(), null);
 	        }
 		}
+        
+        logger.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRr5");
         
         DBPediaCache.getInstance().put(queryString, response);
         
