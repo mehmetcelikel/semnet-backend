@@ -17,18 +17,12 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper=false)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class QueryLabelResponse extends ActionResponse implements Serializable{
-
-	private static final long serialVersionUID = -2594002015058348792L;
+public class QueryLabelResponse extends ActionResponse{
 
 	@JsonIgnore
 	private String queryString;
 	
 	private List<DataObj> dataList = new ArrayList<>();
-	
-	public QueryLabelResponse() {
-		super(ErrorCode.SUCCESS);
-	}
 	
 	public QueryLabelResponse(ErrorCode code, List<ValidationError> errors) {
 		super(code);
