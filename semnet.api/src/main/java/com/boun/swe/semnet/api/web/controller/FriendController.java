@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.boun.swe.semnet.commons.data.request.BaseRequest;
 import com.boun.swe.semnet.commons.data.request.BasicQueryRequest;
 import com.boun.swe.semnet.commons.data.request.FriendRequest;
 import com.boun.swe.semnet.commons.data.response.ActionResponse;

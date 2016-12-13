@@ -17,6 +17,9 @@ public class GetUserResponse extends ActionResponse {
 	private String username;
 	private String firstname;
 	private String lastname;
+	private String email;
+	private String phone;
+	
 	private UserStatus status;
 
 	public GetUserResponse(ErrorCode code){
