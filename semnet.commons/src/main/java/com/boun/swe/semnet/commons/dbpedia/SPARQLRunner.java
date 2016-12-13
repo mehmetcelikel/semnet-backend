@@ -49,7 +49,7 @@ public class SPARQLRunner {
 	
 	public QueryLabelResponse runQuery(String queryString) {
 
-		logger.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRr3");
+		logger.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRr3" + queryString);
 		
 		QueryLabelResponse response = DBPediaCache.getInstance().get(queryString);
 		if(response != null){

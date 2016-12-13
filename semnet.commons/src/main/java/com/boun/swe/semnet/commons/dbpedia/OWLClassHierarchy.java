@@ -96,7 +96,7 @@ public class OWLClassHierarchy {
 		if(os.contains("Windows")){
 			in = new FileInputStream(new File("C:/Users/mehmetce/git/semnet_backend/semnet.commons/resources/dbpedia_2016-04.owl"));	
 		}else{
-			in = new FileInputStream(new File("/swe599/resources/dbpedia_2015-04.owl"));
+			in = new FileInputStream(new File("/swe599/resources/dbpedia_2016-04.owl"));
 		}
 		
         
