@@ -15,6 +15,9 @@ public class ActionResponse {
     private String message;
     private List<ValidationError> errors;
     
+    public ActionResponse() {
+	}
+    
     public ActionResponse(ErrorCode code){
         this.errorCode = code.getFormattedCode();
         this.message = code.getMessage();

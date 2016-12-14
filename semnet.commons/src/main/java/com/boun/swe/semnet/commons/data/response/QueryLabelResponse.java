@@ -26,6 +26,10 @@ public class QueryLabelResponse extends ActionResponse implements Serializable{
 	
 	private List<DataObj> dataList = new ArrayList<>();
 	
+	public QueryLabelResponse() {
+		super(ErrorCode.SUCCESS);
+	}
+	
 	public QueryLabelResponse(ErrorCode code, List<ValidationError> errors) {
 		super(code);
 		setErrors(errors);
