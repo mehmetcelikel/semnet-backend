@@ -90,40 +90,47 @@ public class SPARQLRunner {
         	resultTable.put(label, typeList);
         }
         
+        long start = System.currentTimeMillis();
+        logger.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRr5");
+        
         for (String label : resultTable.keySet()) {
-        	Node current = null;
         	
         	List<String> typeList = resultTable.get(label);
-        	for (String type : typeList) {
-				
-        		if(type.equalsIgnoreCase("http://www.w3.org/2002/07/owl#Thing")){
+        	for (int i = 0; i < typeList.size(); i++) {
+        		String type1 = typeList.get(i);
+        		
+        		if(type1.equalsIgnoreCase("http://www.w3.org/2002/07/owl#Thing")){
         			continue;
         		}
         		
-        		Node node = OWLClassHierarchy.getInstance().getHierarchy().get(type);
-            	if(node == null){
-            		continue;
-            	}
-            	
-            	if(current == null){
-            		current = node;
-            		continue;
-            	}
-            	
-            	int level = OWLClassHierarchy.getInstance().isChild(node.getUri(), current.getUri(), 0);
-            	if(level != 0){
-            		current = node;
-            	}
-            	
-            	if(current != null){
-    	        	response.addData(label, current.getLabel(), null);
-    	        }
+        		Node current = OWLClassHierarchy.getInstance().getHierarchy().get(type1);
+        		if(current == null){
+        			continue;
+        		}
+        		
+        		for (int j = i; j < typeList.size(); j++) {
+        			String type2 = typeList.get(i);
+        			
+        			if(type1.equalsIgnoreCase(type2)){
+        				continue;
+        			}
+        			
+        			Node node = OWLClassHierarchy.getInstance().getHierarchy().get(type2);
+                	if(node == null){
+                		continue;
+                	}
+                	
+                	int level = OWLClassHierarchy.getInstance().isChild(node.getUri(), current.getUri(), 0);
+                	if(level != 0){
+                		current = node;
+                	}        			
+        		}
+				
+	        	response.addData(label, current.getLabel(), null);
 			}
-        	
-        	//TODO load umbel, wikidata and skos classes
 		}
         
-        logger.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRr5");
+        logger.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRr" + (System.currentTimeMillis() -start));
         
         DBPediaCache.getInstance().put(queryString, response);
         
