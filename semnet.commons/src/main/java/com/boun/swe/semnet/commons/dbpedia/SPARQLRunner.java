@@ -43,7 +43,7 @@ public class SPARQLRunner {
 	}
 	
 	public static void main(String[] args) {
-		QueryLabelResponse data = getInstance().runQuery("Fenerbahçe S.K.");
+		QueryLabelResponse data = getInstance().runQuery("Panda");
 		System.out.println(data);
 	}
 	
@@ -90,9 +90,6 @@ public class SPARQLRunner {
         	resultTable.put(label, typeList);
         }
         
-        long start = System.currentTimeMillis();
-        logger.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRr5");
-        
         for (String label : resultTable.keySet()) {
         	
         	List<String> typeList = resultTable.get(label);
@@ -102,14 +99,18 @@ public class SPARQLRunner {
         		if(type1.equalsIgnoreCase("http://www.w3.org/2002/07/owl#Thing")){
         			continue;
         		}
-        		
+        
         		Node current = OWLClassHierarchy.getInstance().getHierarchy().get(type1);
         		if(current == null){
         			continue;
         		}
         		
         		for (int j = i; j < typeList.size(); j++) {
-        			String type2 = typeList.get(i);
+        			String type2 = typeList.get(j);
+        		
+        			if(type2.equalsIgnoreCase("http://www.w3.org/2002/07/owl#Thing")){
+            			continue;
+            		}
         			
         			if(type1.equalsIgnoreCase(type2)){
         				continue;
@@ -120,17 +121,22 @@ public class SPARQLRunner {
                 		continue;
                 	}
                 	
+                	if(current.getLabel().equalsIgnoreCase(node.getLabel())){
+                		continue;
+                	}
+                	
                 	int level = OWLClassHierarchy.getInstance().isChild(node.getUri(), current.getUri(), 0);
-                	if(level != 0){
+                	if(level == 0){
+                		level = OWLClassHierarchy.getInstance().isChild(current.getUri(), node.getUri(), 0);
+                	}
+                	if(level!=0){
                 		current = node;
-                	}        			
+                	}
         		}
 				
 	        	response.addData(label, current.getLabel(), null);
 			}
 		}
-        
-        logger.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRr" + (System.currentTimeMillis() -start));
         
         DBPediaCache.getInstance().put(queryString, response);
         

@@ -30,7 +30,7 @@ public class OWLClassHierarchy {
 	private OWLClassHierarchy() {
 		try{
 			initializeOWL();
-			initializeYAGO();
+//			initializeYAGO();
 		}catch(Throwable e){
 			e.printStackTrace();
 		}
