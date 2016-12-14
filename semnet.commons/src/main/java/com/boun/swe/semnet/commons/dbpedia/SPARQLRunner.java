@@ -43,19 +43,16 @@ public class SPARQLRunner {
 	}
 	
 	public static void main(String[] args) {
-		QueryLabelResponse data = getInstance().runQuery("javascript");
+		QueryLabelResponse data = getInstance().runQuery("Fenerbahçe S.K.");
 		System.out.println(data);
 	}
 	
 	public QueryLabelResponse runQuery(String queryString) {
 
-		logger.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRr3" + queryString);
-		
 		QueryLabelResponse response = DBPediaCache.getInstance().get(queryString);
 		if(response != null){
 			return response;
 		}
-		logger.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRr4");
 		
 		response = new QueryLabelResponse(queryString);
 		
@@ -74,8 +71,6 @@ public class SPARQLRunner {
         	String type = qs.get("type").toString();
         	String ctgry = qs.get("ctgry").toString();
         	
-        	System.out.println("Running sparql query ->" + label);
-        	System.out.println("Running sparql type ->" + type);
         	
         	Node node = OWLClassHierarchy.getInstance().getHierarchy().get(type);
         	if(node == null){
@@ -119,13 +114,13 @@ public class SPARQLRunner {
             	if(level != 0){
             		current = node;
             	}
+            	
+            	if(current != null){
+    	        	response.addData(label, current.getLabel(), null);
+    	        }
 			}
         	
         	//TODO load umbel, wikidata and skos classes
-
-        	if(current != null){
-	        	response.addData(label, current.getLabel(), null);
-	        }
 		}
         
         logger.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRr5");
