@@ -17,7 +17,9 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper=false)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class QueryLabelResponse extends ActionResponse{
+public class QueryLabelResponse extends ActionResponse implements Serializable{
+
+	private static final long serialVersionUID = -2594002015058348792L;
 
 	@JsonIgnore
 	private String queryString;
