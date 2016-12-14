@@ -49,7 +49,10 @@ public class QueryLabelResponse extends ActionResponse implements Serializable{
 	}
 	
 	@Data
-	private static class DataObj{
+	private static class DataObj implements Serializable{
+		
+		private static final long serialVersionUID = 3443011877686118001L;
+		
 		private String label;
 		private String clazz;
 		private String description;
