@@ -1,5 +1,7 @@
 package com.boun.swe.semnet.commons.data;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -8,7 +10,9 @@ import lombok.Data;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TagData {
+public class TagData implements Serializable{
+
+	private static final long serialVersionUID = 4702759902029480057L;
 
 	private String tag;
 	private String clazz;
