@@ -32,8 +32,4 @@ public class GetContentResponse extends ActionResponse {
 	public void addToLikerList(String id, String username){
 		content.addToLikerList(id, username);
 	}
-	
-	public void addToCommentList(String id, String description, Date creationDate, String ownerId, String username){
-		content.addToCommentList(id, description, creationDate, ownerId, username);
-	}
 }

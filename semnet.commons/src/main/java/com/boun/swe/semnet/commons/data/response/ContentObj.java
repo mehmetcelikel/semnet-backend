@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.boun.swe.semnet.commons.data.TagData;
 import com.boun.swe.semnet.commons.util.DateUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -21,7 +22,7 @@ public class ContentObj{
 	private boolean hasImage;
 	private int likeCount;
 	
-	private List<CommentObj> commentList;
+	private List<TagData> tagList;
 	private List<UserObj> likerList;
 	
 	public ContentObj(String id, String description, Date creationDate, String ownerId, String ownerUsername, boolean hasImage, int likeCount){
@@ -39,12 +40,5 @@ public class ContentObj{
 			likerList = new ArrayList<>();
 		}
 		likerList.add(new UserObj(id, username, null, null));
-	}
-	
-	public void addToCommentList(String id, String description, Date creationDate, String ownerId, String username){
-		if(commentList == null){
-			commentList = new ArrayList<>();
-		}
-		commentList.add(new CommentObj(id, description, creationDate, ownerId, username));
 	}
 }

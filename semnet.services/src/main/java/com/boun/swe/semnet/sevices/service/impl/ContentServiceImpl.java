@@ -132,6 +132,7 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 					obj.addToLikerList(liker.getId(), liker.getUsername());
 				}
 			}
+			obj.setTagList(content.getTagList());
 			
 			resp.addContent(obj);
 		}
