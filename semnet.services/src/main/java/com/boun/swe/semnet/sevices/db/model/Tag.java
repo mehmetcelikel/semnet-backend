@@ -1,10 +1,12 @@
 package com.boun.swe.semnet.sevices.db.model;
 
-import java.util.Date;
 import java.util.List;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.boun.swe.semnet.commons.data.TagData;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -13,26 +15,16 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper=false)
-@Document(collection = "content")
+@Document(collection = "tags")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Content extends TaggedEntity{
+public class Tag{
 
-	private static final long serialVersionUID = 6144439756047888283L;
-
-	private String description;
-	private Date creationDate;
+	@Id
+	private String id;
 	
-	private String ownerId;
+	private TagData tag;
 	
-	private List<String> likers;
-	
-	private int likeCount = 0;
-	private boolean hasImage;
-	
-	private List<Comment> comments;
-	
-	public Content(){
-		super(EntityType.CONTENT);
-	}
-} 
+	@DBRef
+	private List<TaggedEntity> referenceSet;
+}

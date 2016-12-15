@@ -7,6 +7,7 @@ import com.boun.swe.semnet.commons.data.request.BasicSearchRequest;
 import com.boun.swe.semnet.commons.data.request.ChangePasswordRequest;
 import com.boun.swe.semnet.commons.data.request.CreateUserRequest;
 import com.boun.swe.semnet.commons.data.request.ResetPasswordRequest;
+import com.boun.swe.semnet.commons.data.request.TagRequest;
 import com.boun.swe.semnet.commons.data.request.UpdateUserRequest;
 import com.boun.swe.semnet.commons.data.response.ActionResponse;
 import com.boun.swe.semnet.commons.data.response.CreateResponse;
@@ -37,4 +38,6 @@ public interface UserService {
     byte[] downloadProfileImage(String authToken, String userId);
     
     UserListResponse getAllUserList(BaseRequest request);
+    
+    public ActionResponse tag(TagRequest request);;
 }

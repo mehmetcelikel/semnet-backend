@@ -21,6 +21,7 @@ import com.boun.swe.semnet.commons.data.request.AddContentRequest;
 import com.boun.swe.semnet.commons.data.request.BasicQueryRequest;
 import com.boun.swe.semnet.commons.data.request.DeleteCommentRequest;
 import com.boun.swe.semnet.commons.data.request.ListContentRequest;
+import com.boun.swe.semnet.commons.data.request.TagRequest;
 import com.boun.swe.semnet.commons.data.response.ActionResponse;
 import com.boun.swe.semnet.commons.data.response.CommentListResponse;
 import com.boun.swe.semnet.commons.data.response.ContentListResponse;
@@ -57,6 +58,21 @@ public class ContentController {
     	}catch (SemNetException e) {
     		
     		logger.error("Error occured while running createContent service, code->" + e.getErrorCode());
+    		
+    		return new ActionResponse(e.getErrorCode(), e.getErrors());
+    	}
+    }
+    
+    @ApiOperation(value="Tag Content")
+    @RequestMapping(value="tag", method = RequestMethod.POST)
+    @ApiResponses(value={@ApiResponse(code=200, message = "Success")})
+    public @ResponseBody ActionResponse tag(@RequestBody TagRequest request) {
+
+    	try{
+    		return contentService.tag(request);
+    	}catch (SemNetException e) {
+    		
+    		logger.error("Error occured while running tagContent service, code->" + e.getErrorCode());
     		
     		return new ActionResponse(e.getErrorCode(), e.getErrors());
     	}

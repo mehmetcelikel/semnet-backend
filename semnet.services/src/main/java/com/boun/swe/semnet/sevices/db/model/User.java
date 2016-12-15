@@ -20,7 +20,7 @@ import lombok.EqualsAndHashCode;
 @Document(collection = "user_")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class User extends BaseEntity{
+public class User extends TaggedEntity{
 
 	private static final long serialVersionUID = 553091158811833395L;
 
@@ -56,6 +56,7 @@ public class User extends BaseEntity{
 	private List<Friendship> friendList = new ArrayList<>();
     
 	public User(){
+		super(EntityType.USER);
 	}
 	
 }

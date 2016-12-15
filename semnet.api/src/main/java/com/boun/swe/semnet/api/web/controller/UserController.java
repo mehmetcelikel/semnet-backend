@@ -23,6 +23,7 @@ import com.boun.swe.semnet.commons.data.request.BasicSearchRequest;
 import com.boun.swe.semnet.commons.data.request.ChangePasswordRequest;
 import com.boun.swe.semnet.commons.data.request.CreateUserRequest;
 import com.boun.swe.semnet.commons.data.request.ResetPasswordRequest;
+import com.boun.swe.semnet.commons.data.request.TagRequest;
 import com.boun.swe.semnet.commons.data.request.UpdateUserRequest;
 import com.boun.swe.semnet.commons.data.response.ActionResponse;
 import com.boun.swe.semnet.commons.data.response.CreateResponse;
@@ -61,6 +62,21 @@ public class UserController {
     		logger.error("Error occured while running createUser service, code->" + e.getErrorCode());
     		
     		return new CreateResponse(e.getErrorCode(), e.getErrors());
+    	}
+    }
+    
+    @ApiOperation(value="Tag User")
+    @RequestMapping(value="tag", method = RequestMethod.POST)
+    @ApiResponses(value={@ApiResponse(code=200, message = "Success")})
+    public @ResponseBody ActionResponse tag(@RequestBody TagRequest request) {
+
+    	try{
+    		return userService.tag(request);
+    	}catch (SemNetException e) {
+    		
+    		logger.error("Error occured while running tagUser service, code->" + e.getErrorCode());
+    		
+    		return new ActionResponse(e.getErrorCode(), e.getErrors());
     	}
     }
     

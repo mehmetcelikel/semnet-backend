@@ -23,6 +23,8 @@ public enum ErrorCode {
 	
 	CORRUPTED_IMAGE("Image is corrupted", "130"),
 	
+	TAG_CLASS_NOT_FOUND("Tag class not found", "131"),
+	
 	INTERNAL_SERVER_ERROR("Internal Server Error", "900")
 	;
 

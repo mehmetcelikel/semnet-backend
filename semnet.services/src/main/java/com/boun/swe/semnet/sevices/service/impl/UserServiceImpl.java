@@ -25,17 +25,21 @@ import com.boun.swe.semnet.commons.type.ErrorCode;
 import com.boun.swe.semnet.commons.type.UserStatus;
 import com.boun.swe.semnet.commons.util.KeyUtils;
 import com.boun.swe.semnet.sevices.db.manager.ImagePersistencyManager;
+import com.boun.swe.semnet.sevices.db.model.TaggedEntity;
 import com.boun.swe.semnet.sevices.db.model.User;
-import com.boun.swe.semnet.sevices.service.BaseService;
+import com.boun.swe.semnet.sevices.service.TagService;
 import com.boun.swe.semnet.sevices.service.UserService;
 
 @Service
-public class UserServiceImpl extends BaseService implements UserService {
+public class UserServiceImpl extends BaseTaggedService implements UserService {
 
 	private final static Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 	
 	@Autowired
 	private ImagePersistencyManager imagePersistencyManager;
+	
+	@Autowired
+	TagService tagService;
 	
 	@Override
 	public CreateResponse create(CreateUserRequest request) {
@@ -271,5 +275,20 @@ public class UserServiceImpl extends BaseService implements UserService {
 		validate(request);
 		
 		return imagePersistencyManager.getProfileImage(userId);
+	}
+
+	@Override
+	protected TagService getTagService() {
+		return tagService;
+	}
+
+	@Override
+	public TaggedEntity findById(String entityId) {
+		return userManager.findById(entityId);
+	}
+
+	@Override
+	public void save(TaggedEntity entity) {
+		userManager.merge((User)entity);
 	}
 }

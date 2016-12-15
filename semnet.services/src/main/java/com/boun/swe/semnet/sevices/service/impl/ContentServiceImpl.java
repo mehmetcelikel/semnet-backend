@@ -29,15 +29,19 @@ import com.boun.swe.semnet.sevices.db.manager.ImagePersistencyManager;
 import com.boun.swe.semnet.sevices.db.model.Comment;
 import com.boun.swe.semnet.sevices.db.model.Content;
 import com.boun.swe.semnet.sevices.db.model.Friendship;
+import com.boun.swe.semnet.sevices.db.model.TaggedEntity;
 import com.boun.swe.semnet.sevices.db.model.User;
-import com.boun.swe.semnet.sevices.service.BaseService;
 import com.boun.swe.semnet.sevices.service.ContentService;
+import com.boun.swe.semnet.sevices.service.TagService;
 
 @Service
-public class ContentServiceImpl extends BaseService implements ContentService{
+public class ContentServiceImpl extends BaseTaggedService implements ContentService{
 
 	@Autowired
 	private ContentManager contentRepository;
+	
+	@Autowired
+	TagService tagService;
 	
 	@Autowired
 	private ImagePersistencyManager imagePersistencyManager;
@@ -84,20 +88,16 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		GetContentResponse resp = new GetContentResponse(ErrorCode.SUCCESS);
 		resp.setContentDetails(content.getId(), content.getDescription(), content.getCreationDate(), content.getOwnerId(), owner.getUsername(), content.isHasImage(), content.getLikeCount());
 		
-//		if(content.getComments() != null && !content.getComments().isEmpty()){
-//			for (String commentId : content.getComments()) {
-//				resp.addToCommentList(c.getId(), c.getDescription(), c.getCreationDate(), c.getOwner().getId(), c.getOwner().getUsername());		
-//			}
-//		}
+		if(content.getLikers() == null || content.getLikers().isEmpty()){
+			return resp;
+		}
 		
-		if(content.getLikers() != null && !content.getLikers().isEmpty()){
-			for (String likerId : content.getLikers()) {
-				User liker = userManager.findById(likerId);
-				if(liker == null){
-					continue;
-				}
-				resp.addToLikerList(liker.getId(), liker.getUsername());
+		for (String likerId : content.getLikers()) {
+			User liker = userManager.findById(likerId);
+			if(liker == null){
+				continue;
 			}
+			resp.addToLikerList(liker.getId(), liker.getUsername());
 		}
 		
 		return resp;
@@ -122,12 +122,6 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 			User owner = userManager.findById(content.getOwnerId());
 			
 			ContentObj obj = new ContentObj(content.getId(), content.getDescription(), content.getCreationDate(), owner.getId(), owner.getUsername(), content.isHasImage(), content.getLikeCount());
-			
-//			if(content.getComments() != null && !content.getComments().isEmpty()){
-//				for (Comment c : content.getComments()) {
-//					obj.addToCommentList(c.getId(), c.getDescription(), c.getCreationDate(), c.getOwner().getId(), c.getOwner().getUsername());		
-//				}
-//			}
 			
 			if(content.getLikers() != null && !content.getLikers().isEmpty()){
 				for (String likerId : content.getLikers()) {
@@ -383,21 +377,6 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 		return imagePersistencyManager.getImage(contentId);
 	}
 	
-	private boolean isUserFound(List<User> userList, User authenticatedUser){
-		if(userList == null || userList.isEmpty()){
-			return false;
-		}
-		
-		boolean found = false;
-		for (User user : userList) {
-			if(user.getId().equals(authenticatedUser.getId())){
-				found = true;
-				break;
-			}
-		}
-		return found;
-	}
-	
 	public List<User> getDiffUserList(List<User> userList, User user){
 		List<User> newList = new ArrayList<>();
 		for (User u : userList) {
@@ -416,5 +395,20 @@ public class ContentServiceImpl extends BaseService implements ContentService{
 			}
 		}
 		return newList;
+	}
+
+	@Override
+	protected TagService getTagService() {
+		return tagService;
+	}
+
+	@Override
+	public TaggedEntity findById(String entityId) {
+		return contentRepository.findById(entityId);
+	}
+
+	@Override
+	public void save(TaggedEntity entity) {
+		contentRepository.merge((Content)entity);
 	}
 }
