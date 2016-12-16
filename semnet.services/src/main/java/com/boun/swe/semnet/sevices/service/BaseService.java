@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.boun.swe.semnet.commons.data.request.BaseRequest;
 import com.boun.swe.semnet.commons.exception.SemNetException;
 import com.boun.swe.semnet.commons.type.ErrorCode;
+import com.boun.swe.semnet.sevices.db.manager.ContentManager;
 import com.boun.swe.semnet.sevices.db.manager.UserManager;
 import com.boun.swe.semnet.sevices.db.model.User;
 
@@ -20,6 +21,9 @@ public abstract class BaseService {
 
 	@Autowired
 	protected UserManager userManager;
+	
+	@Autowired 
+	protected ContentManager contentManager;
 	
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
