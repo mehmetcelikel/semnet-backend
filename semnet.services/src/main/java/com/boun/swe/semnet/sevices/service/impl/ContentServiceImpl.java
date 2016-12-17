@@ -122,6 +122,7 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 		authenticatedUser = userManager.findById(authenticatedUser.getId());
 		
 		resp.setSortByLikeCount(request.getType().equals(ContentListType.POPULAR));
+		resp.setSortByDistance(request.getType().equals(ContentListType.LOCATION));
 		
 		List<Content> contentList = getContentList(request, authenticatedUser);
 		if(contentList == null || contentList.isEmpty()){
@@ -136,7 +137,7 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 			
 			double[] position = content.getPosition();
 			if(request.getType().equals(ContentListType.LOCATION) && position != null && position.length == 2){
-				float diff = SemNetUtils.distFrom(request.getLatitude(), request.getLongitude(), position[1], position[0]);
+				long diff = SemNetUtils.distFrom(request.getLatitude(), request.getLongitude(), position[1], position[0]);
 				obj.setDistance(diff);
 			}
 			

@@ -22,7 +22,7 @@ public class ContentObj{
 	private String ownerUsername;
 	private boolean hasImage;
 	private int likeCount;
-	private Float distance;
+	private Long distance;
 	
 	private List<TagData> tagList;
 	private List<UserObj> likerList;
