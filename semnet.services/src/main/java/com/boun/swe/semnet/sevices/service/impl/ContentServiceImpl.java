@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +39,8 @@ import com.boun.swe.semnet.sevices.service.TagService;
 @Service
 public class ContentServiceImpl extends BaseTaggedService implements ContentService{
 
+	private final static Logger logger = LoggerFactory.getLogger(ContentServiceImpl.class);
+	
 	@Autowired
 	private ContentManager contentRepository;
 	
@@ -70,7 +74,7 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 	
 	private double[] mapPosition(double longitude, double latitude){
 		double[] position = new double[2];
-		position[1] = longitude;
+		position[0] = longitude;
 		position[1] = latitude;
 		return position;
 	}
