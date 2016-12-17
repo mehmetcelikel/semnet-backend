@@ -26,9 +26,6 @@ public class ContentListResponse extends ActionResponse {
 	@JsonIgnore
 	private boolean sortByLikeCount;
 	
-	@JsonIgnore
-	private boolean sortByDistance;
-	
 	public ContentListResponse(ErrorCode code){
 		super(code);
 	}
@@ -61,10 +58,6 @@ public class ContentListResponse extends ActionResponse {
 			Collections.sort(contentList, new ContentSort());
 		}else if(sortByLikeCount){
 			Collections.sort(contentList, new ContentLikeCountSort());
-			
-		}else if(sortByDistance){
-			Collections.sort(contentList, new ContentDistanceSort());
-			
 		}else{
 			Collections.sort(contentList, new ContentSortByDate());
 		}

@@ -122,7 +122,6 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 		authenticatedUser = userManager.findById(authenticatedUser.getId());
 		
 		resp.setSortByLikeCount(request.getType().equals(ContentListType.POPULAR));
-		resp.setSortByDistance(request.getType().equals(ContentListType.LOCATION));
 		
 		List<Content> contentList = getContentList(request, authenticatedUser);
 		if(contentList == null || contentList.isEmpty()){
