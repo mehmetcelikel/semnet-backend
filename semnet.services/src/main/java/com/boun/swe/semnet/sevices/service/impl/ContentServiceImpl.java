@@ -30,6 +30,7 @@ import com.boun.swe.semnet.commons.exception.SemNetException;
 import com.boun.swe.semnet.commons.type.ContentListType;
 import com.boun.swe.semnet.commons.type.ErrorCode;
 import com.boun.swe.semnet.commons.util.KeyUtils;
+import com.boun.swe.semnet.commons.util.SemNetUtils;
 import com.boun.swe.semnet.sevices.db.manager.ContentManager;
 import com.boun.swe.semnet.sevices.db.manager.ImagePersistencyManager;
 import com.boun.swe.semnet.sevices.db.model.Comment;
@@ -132,6 +133,12 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 			User owner = userManager.findById(content.getOwnerId());
 			
 			ContentObj obj = new ContentObj(content.getId(), content.getDescription(), content.getCreationDate(), owner.getId(), owner.getUsername(), content.isHasImage(), content.getLikeCount());
+			
+			double[] position = content.getPosition();
+			if(request.getType().equals(ContentListType.LOCATION) && position != null && position.length == 2){
+				float diff = SemNetUtils.distFrom(request.getLatitude(), request.getLongitude(), position[1], position[0]);
+				obj.setDistance(diff);
+			}
 			
 			if(content.getLikers() != null && !content.getLikers().isEmpty()){
 				for (String likerId : content.getLikers()) {
