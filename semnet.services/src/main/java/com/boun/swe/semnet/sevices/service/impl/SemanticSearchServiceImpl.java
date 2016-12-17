@@ -14,6 +14,8 @@ import org.simmetrics.StringMetric;
 import org.simmetrics.metrics.CosineSimilarity;
 import org.simmetrics.simplifiers.Simplifiers;
 import org.simmetrics.tokenizers.Tokenizers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +49,8 @@ import lombok.Data;
 @Service
 public class SemanticSearchServiceImpl extends BaseService implements SemanticSearchService{
 
+	private final static Logger logger = LoggerFactory.getLogger(SemanticSearchServiceImpl.class);
+	
 	@Autowired
 	TagService tagService;
 	
@@ -180,7 +184,7 @@ public class SemanticSearchServiceImpl extends BaseService implements SemanticSe
 					
 					float similarityIndex = getSimilarityIndex(tag.getClazz(), tagData.getClazz());
 					
-					Log.info(tag.getClazz() + " and " + tagData.getClazz() + " similarity index1 is ->" + similarityIndex);
+					logger.info(tag.getClazz() + " and " + tagData.getClazz() + " similarity index1 is ->" + similarityIndex);
 					
 					if(similarityIndex < 0.5F){
 						similarityIndex = getSimilarityIndex(tag.getClazz(), tagData.getTag());
