@@ -125,6 +125,7 @@ public class SemanticSearchServiceImpl extends BaseService implements SemanticSe
 		validate(request);
 		
 		QueryLabelResponse response = new QueryLabelResponse("");
+		response.setSortByCount(true);
 		
 		List<TagData> tagDataList = TagCache.getInstance(tagService).getAllTags();
 		if(tagDataList == null){

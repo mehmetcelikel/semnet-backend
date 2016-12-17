@@ -21,6 +21,9 @@ public class QueryLabelResponse extends ActionResponse{
 	@JsonIgnore
 	private String queryString;
 	
+	@JsonIgnore
+	private boolean sortByCount = false;
+	
 	private List<DataObj> dataList = new ArrayList<>();
 	
 	public QueryLabelResponse(ErrorCode code, List<ValidationError> errors) {
@@ -45,7 +48,19 @@ public class QueryLabelResponse extends ActionResponse{
 	}
 	
 	public List<DataObj> getDataList(){
-		Collections.sort(dataList, new DataObjSort(queryString));
+		if(dataList == null || dataList.isEmpty()){
+			return dataList;
+		}
+		
+		if(sortByCount){
+			Collections.sort(dataList, new DataObjCountSort());
+		}else{
+			
+			if(queryString != null && !queryString.isEmpty()){
+				Collections.sort(dataList, new DataObjSort(queryString));				
+			}
+		}
+		
 		return dataList;		
 	}
 	
@@ -111,6 +126,20 @@ public class QueryLabelResponse extends ActionResponse{
 	    	float idx2 = SemNetUtils.getSimilarityIndex(o2.getLabel(), queryString);
 	    	
 	    	return (idx1 >= idx2) ? -1 : 1;
+	    }
+	}
+	
+	private static class DataObjCountSort implements Comparator<DataObj> {
+
+		public DataObjCountSort(){
+		}
+		
+	    @Override
+	    public int compare(DataObj o1, DataObj o2) {
+	    	if(o1 == null || o2 == null){
+	    		return 1;
+	    	}
+	    	return (o1.count >= o2.count) ? -1 : 1;
 	    }
 	}
 }
