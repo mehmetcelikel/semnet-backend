@@ -230,12 +230,8 @@ public class SemanticSearchServiceImpl extends BaseService implements SemanticSe
 		
 		float similarityIndex = getSimilarityIndex(tagClazz, clazzToBeFound);
 		
-		logger.info(tagClazz + " and " + clazzToBeFound + " similarity index1 is ->" + similarityIndex);
-		
 		if(similarityIndex < 0.4F){
 			similarityIndex = getSimilarityIndex(tagClazz, tagToBeFound);
-			
-			logger.info(tagClazz + " and " + tagToBeFound + " similarity index2 is ->" + similarityIndex);
 		}
 		
 		if(similarityIndex < 0.4F){
