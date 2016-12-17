@@ -248,7 +248,7 @@ public class SemanticSearchServiceImpl extends BaseService implements SemanticSe
 			Node node = OWLClassHierarchy.getInstance().getHierarchy().get(tagClazzURI);	
 			
 			Element parent = node.getParent();
-			if(parent != null && !parent.equals(OWLClassHierarchy.THING_CLAZZ)){
+			if(parent != null && !parent.getUri().equals(OWLClassHierarchy.THING_CLAZZ)){
 				similarityIndex = lookupSimilarityIndex(tagToBeFound, clazzToBeFound, parent.getLabel(), attempt);				
 			}
 		}
