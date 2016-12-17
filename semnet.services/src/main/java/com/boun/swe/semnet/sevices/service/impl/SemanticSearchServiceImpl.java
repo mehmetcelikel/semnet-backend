@@ -9,7 +9,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import org.mortbay.log.Log;
 import org.simmetrics.StringMetric;
 import org.simmetrics.metrics.CosineSimilarity;
 import org.simmetrics.simplifiers.Simplifiers;
@@ -28,6 +27,8 @@ import com.boun.swe.semnet.commons.data.response.ContentObj;
 import com.boun.swe.semnet.commons.data.response.QueryLabelResponse;
 import com.boun.swe.semnet.commons.data.response.UserListResponse;
 import com.boun.swe.semnet.commons.dbpedia.OWLClassHierarchy;
+import com.boun.swe.semnet.commons.dbpedia.OWLClassHierarchy.Element;
+import com.boun.swe.semnet.commons.dbpedia.OWLClassHierarchy.Node;
 import com.boun.swe.semnet.commons.dbpedia.SPARQLRunner;
 import com.boun.swe.semnet.commons.exception.SemNetException;
 import com.boun.swe.semnet.commons.type.ErrorCode;
@@ -182,17 +183,9 @@ public class SemanticSearchServiceImpl extends BaseService implements SemanticSe
 					searchIndex.add(new SemanticSearchIndex(tag, level)); //If both these tags have relation, mark it with high value
 				}else{
 					
-					float similarityIndex = getSimilarityIndex(tag.getClazz(), tagData.getClazz());
+					float similarityIndex = lookupSimilarityIndex(tagData.getTag(), tagData.getClazz(), tag.getClazz(), 0);
 					
-					logger.info(tag.getClazz() + " and " + tagData.getClazz() + " similarity index1 is ->" + similarityIndex);
-					
-					if(similarityIndex < 0.5F){
-						similarityIndex = getSimilarityIndex(tag.getClazz(), tagData.getTag());
-						
-						Log.info(tag.getClazz() + " and " + tagData.getClazz() + " similarity index2 is ->" + similarityIndex);
-					}
-					
-					if(similarityIndex > 0.5F){
+					if(similarityIndex > 0.4F){
 						searchIndex.add(new SemanticSearchIndex(tag, similarityIndex));						
 					}
 				}
@@ -230,6 +223,37 @@ public class SemanticSearchServiceImpl extends BaseService implements SemanticSe
 			}
 		}
 		return searchIndex;
+	}
+	
+	private float lookupSimilarityIndex(String tagToBeFound, String clazzToBeFound, String tagClazz, int attempt){
+		++attempt;
+		
+		float similarityIndex = getSimilarityIndex(tagClazz, clazzToBeFound);
+		
+		logger.info(tagClazz + " and " + clazzToBeFound + " similarity index1 is ->" + similarityIndex);
+		
+		if(similarityIndex < 0.4F){
+			similarityIndex = getSimilarityIndex(tagClazz, tagToBeFound);
+			
+			logger.info(tagClazz + " and " + clazzToBeFound + " similarity index2 is ->" + similarityIndex);
+		}
+		
+		if(similarityIndex < 0.4F){
+			
+			if(attempt == 2){
+				return similarityIndex;
+			}
+			
+			String tagClazzURI = OWLClassHierarchy.getInstance().getClazzURI(tagClazz);
+			Node node = OWLClassHierarchy.getInstance().getHierarchy().get(tagClazzURI);	
+			
+			Element parent = node.getParent();
+			if(parent != null && !parent.equals(OWLClassHierarchy.THING_CLAZZ)){
+				similarityIndex = lookupSimilarityIndex(tagToBeFound, clazzToBeFound, parent.getLabel(), attempt);				
+			}
+		}
+		
+		return similarityIndex;
 	}
 	
 	private void addContentResultList(ContentListResponse response, String id, float rank){

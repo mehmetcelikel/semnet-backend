@@ -24,8 +24,9 @@ public class OWLClassHierarchy {
 	private static OWLClassHierarchy instance = new OWLClassHierarchy();
 	
 	private Hashtable<String, Node> hierarchy = new Hashtable<String, Node>();
-	
 	private Hashtable<String,String> classURITable = new Hashtable<String,String>();
+
+	public static final String THING_CLAZZ = "http://www.w3.org/2002/07/owl#Thing";
 	
 	private OWLClassHierarchy() {
 		try{
