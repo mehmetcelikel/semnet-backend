@@ -43,7 +43,7 @@ public class SPARQLRunner {
 	}
 	
 	public static void main(String[] args) {
-		QueryLabelResponse data = getInstance().runQuery("Panda");
+		QueryLabelResponse data = getInstance().runQuery("France");
 		System.out.println(data);
 	}
 	
@@ -126,9 +126,9 @@ public class SPARQLRunner {
                 	}
                 	
                 	int level = OWLClassHierarchy.getInstance().isChild(node.getUri(), current.getUri(), 0);
-                	if(level == 0){
-                		level = OWLClassHierarchy.getInstance().isChild(current.getUri(), node.getUri(), 0);
-                	}
+//                	if(level == 0){
+//                		level = OWLClassHierarchy.getInstance().isChild(current.getUri(), node.getUri(), 0);
+//                	}
                 	if(level!=0){
                 		current = node;
                 	}
