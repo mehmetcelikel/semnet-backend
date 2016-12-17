@@ -14,4 +14,6 @@ public interface ContentRepositoryCustom {
 	
 	List<Content> findLatestContents();
 	List<Content> findPopularContents();
+	
+	void geoSpatialIndex();
 }

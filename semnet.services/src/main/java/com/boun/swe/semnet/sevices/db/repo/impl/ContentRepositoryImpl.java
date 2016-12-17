@@ -16,8 +16,11 @@ public class ContentRepositoryImpl implements ContentRepositoryCustom {
     @Autowired private MongoTemplate mongoTemplate;
 
     public ContentRepositoryImpl() {
-    	mongoTemplate.indexOps(Content.class).ensureIndex( new GeospatialIndex("position") );
 	}
+    
+    public void geoSpatialIndex(){
+    	mongoTemplate.indexOps(Content.class).ensureIndex( new GeospatialIndex("position") );
+    }
     
 	@Override
 	public Content findById(String contentId) {
