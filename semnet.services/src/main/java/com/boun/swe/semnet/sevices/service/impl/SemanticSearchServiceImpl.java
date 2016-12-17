@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
+import org.mortbay.log.Log;
 import org.simmetrics.StringMetric;
 import org.simmetrics.metrics.CosineSimilarity;
 import org.simmetrics.simplifiers.Simplifiers;
@@ -170,11 +171,26 @@ public class SemanticSearchServiceImpl extends BaseService implements SemanticSe
 				}
 				
 				String tagClazzURI = OWLClassHierarchy.getInstance().getClazzURI(tag.getClazz());
-				
 				String tagDataClazzURI = OWLClassHierarchy.getInstance().getClazzURI(tagData.getClazz());
+				
 				float level = getRelationLevel(tagDataClazzURI, tagClazzURI); 
 				if(level != 0){
 					searchIndex.add(new SemanticSearchIndex(tag, level)); //If both these tags have relation, mark it with high value
+				}else{
+					
+					float similarityIndex = getSimilarityIndex(tag.getClazz(), tagData.getClazz());
+					
+					Log.info(tag.getClazz() + " and " + tagData.getClazz() + " similarity index1 is ->" + similarityIndex);
+					
+					if(similarityIndex < 0.5F){
+						similarityIndex = getSimilarityIndex(tag.getClazz(), tagData.getTag());
+						
+						Log.info(tag.getClazz() + " and " + tagData.getClazz() + " similarity index2 is ->" + similarityIndex);
+					}
+					
+					if(similarityIndex > 0.5F){
+						searchIndex.add(new SemanticSearchIndex(tag, similarityIndex));						
+					}
 				}
 				
 				continue;
@@ -197,14 +213,11 @@ public class SemanticSearchServiceImpl extends BaseService implements SemanticSe
 				
 				//Compare entered text with context information, if they are similar at a degree, consider it as a possible result
 				
-				float similarityIndex = 0;
-				if(tag.getClazz() != null){
-					similarityIndex = getSimilarityIndex(tag.getClazz(), tagData.getTag());
-					if(similarityIndex > 0.5F){
-						searchIndex.add(new SemanticSearchIndex(tag, similarityIndex));
-						continue;
-					}	
-				}
+				float similarityIndex = getSimilarityIndex(tag.getClazz(), tagData.getTag());
+				if(similarityIndex > 0.5F){
+					searchIndex.add(new SemanticSearchIndex(tag, similarityIndex));
+					continue;
+				}	
 				//If both input tag has no context, compare their similarity 
 				similarityIndex = getSimilarityIndex(tag.getTag(), tagData.getTag());
 				if(similarityIndex > 0.2F){
@@ -336,6 +349,10 @@ public class SemanticSearchServiceImpl extends BaseService implements SemanticSe
 	}
 	
 	public static float getSimilarityIndex(String str1, String str2){
+		
+		if(str1 == null || str2 == null){
+			return 0F;
+		}
 		
 		Set<String> commonWords = Sets.newHashSet("it", "is", "a", "and", "the", "are, i");
 		

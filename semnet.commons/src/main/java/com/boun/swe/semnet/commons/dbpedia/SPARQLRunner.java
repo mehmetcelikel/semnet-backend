@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.boun.swe.semnet.commons.cache.DBPediaCache;
 import com.boun.swe.semnet.commons.data.response.QueryLabelResponse;
+import com.boun.swe.semnet.commons.dbpedia.OWLClassHierarchy.Element;
 import com.boun.swe.semnet.commons.dbpedia.OWLClassHierarchy.Node;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
@@ -43,8 +44,38 @@ public class SPARQLRunner {
 	}
 	
 	public static void main(String[] args) {
-		QueryLabelResponse data = getInstance().runQuery("France");
+		QueryLabelResponse data = getInstance().runQuery("Turkish Super Cup");
 		System.out.println(data);
+		
+		String s = "http://dbpedia.org/ontology/FootballMatch";
+		Node node = OWLClassHierarchy.getInstance().getHierarchy().get(s);	
+		
+		printChilds(node);
+		
+		System.out.println("input->" + s);
+		while(node.getParent() != null){
+			System.out.println("------" + node.getParent().getUri());
+			if(node.getParent().getUri().equals("http://www.w3.org/2002/07/owl#Thing")){
+				break;
+			}
+			node = OWLClassHierarchy.getInstance().getHierarchy().get(node.getParent().getUri());
+			
+			printChilds(node);
+			System.out.println("------");
+		}
+		
+//		printChilds(node);
+	}
+	
+	private static void printChilds(Node node){
+		System.out.println("printing childs of->" + node.getUri()); 
+		if(node.getChildList() != null || !node.getChildList().isEmpty()){
+			for (Element child : node.getChildList()) {
+				System.out.println("child->" + child.getUri());
+				Node n = OWLClassHierarchy.getInstance().getHierarchy().get(child.getUri());
+				printChilds(n);
+			}
+		}	
 	}
 	
 	public QueryLabelResponse runQuery(String queryString) {
