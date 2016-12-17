@@ -235,7 +235,7 @@ public class SemanticSearchServiceImpl extends BaseService implements SemanticSe
 		if(similarityIndex < 0.4F){
 			similarityIndex = getSimilarityIndex(tagClazz, tagToBeFound);
 			
-			logger.info(tagClazz + " and " + clazzToBeFound + " similarity index2 is ->" + similarityIndex);
+			logger.info(tagClazz + " and " + tagToBeFound + " similarity index2 is ->" + similarityIndex);
 		}
 		
 		if(similarityIndex < 0.4F){
@@ -245,11 +245,21 @@ public class SemanticSearchServiceImpl extends BaseService implements SemanticSe
 			}
 			
 			String tagClazzURI = OWLClassHierarchy.getInstance().getClazzURI(tagClazz);
-			Node node = OWLClassHierarchy.getInstance().getHierarchy().get(tagClazzURI);	
+			Node tagNnode = OWLClassHierarchy.getInstance().getHierarchy().get(tagClazzURI);	
 			
-			Element parent = node.getParent();
-			if(parent != null && !parent.getUri().equals(OWLClassHierarchy.THING_CLAZZ)){
-				similarityIndex = lookupSimilarityIndex(tagToBeFound, clazzToBeFound, parent.getLabel(), attempt);				
+			Element tagParent = tagNnode.getParent();
+			if(tagParent != null && !tagParent.getUri().equals(OWLClassHierarchy.THING_CLAZZ)){
+				similarityIndex = lookupSimilarityIndex(tagToBeFound, clazzToBeFound, tagParent.getLabel(), attempt);
+				
+				if(similarityIndex < 0.4F){
+					String toBeFoundClazzURI = OWLClassHierarchy.getInstance().getClazzURI(clazzToBeFound);
+					Node toBeFoundNode = OWLClassHierarchy.getInstance().getHierarchy().get(toBeFoundClazzURI);
+					Element toBeFoundParent = toBeFoundNode.getParent();
+					
+					if(toBeFoundParent != null && !toBeFoundParent.getUri().equals(OWLClassHierarchy.THING_CLAZZ)){
+						similarityIndex = lookupSimilarityIndex(tagToBeFound, toBeFoundParent.getLabel(), tagParent.getLabel(), attempt);				
+					}					
+				}
 			}
 		}
 		
