@@ -47,6 +47,10 @@ public class ContentListResponse extends ActionResponse {
 	}
 	
 	public List<ContentObj> getContentList(){
+		if(contentList == null || contentList.isEmpty()){
+			return contentList;
+		}
+		
 		if(sortByRank){
 			Collections.sort(contentList, new ContentSort());	
 		}else{

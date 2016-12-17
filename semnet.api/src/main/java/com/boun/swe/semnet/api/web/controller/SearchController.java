@@ -15,7 +15,6 @@ import com.boun.swe.semnet.commons.data.response.ContentListResponse;
 import com.boun.swe.semnet.commons.data.response.QueryLabelResponse;
 import com.boun.swe.semnet.commons.data.response.UserListResponse;
 import com.boun.swe.semnet.commons.exception.SemNetException;
-import com.boun.swe.semnet.sevices.data.SemanticSearchResponse;
 import com.boun.swe.semnet.sevices.service.SemanticSearchService;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
