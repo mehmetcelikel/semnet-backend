@@ -8,6 +8,9 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Metrics;
+import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 
 import com.boun.swe.semnet.commons.data.request.AddCommentRequest;
@@ -42,7 +45,7 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 	private final static Logger logger = LoggerFactory.getLogger(ContentServiceImpl.class);
 	
 	@Autowired
-	private ContentManager contentRepository;
+	private ContentManager contentManager;
 	
 	@Autowired
 	TagService tagService;
@@ -63,7 +66,7 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 		content.setOwnerId(authenticatedUser.getId());
 		content.setHasImage(request.isHasImage());
 		content.setPosition(mapPosition(request.getLongitude(), request.getLatitude()));
-		contentRepository.merge(content);
+		contentManager.merge(content);
 		
 		authenticatedUser.getContents().add(content.getId());
 		
@@ -72,19 +75,13 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 		return new CreateResponse(ErrorCode.SUCCESS, content.getId());
 	}
 	
-	private double[] mapPosition(double longitude, double latitude){
-		double[] position = new double[2];
-		position[0] = longitude;
-		position[1] = latitude;
-		return position;
-	}
 	@Override
 	public GetContentResponse get(BasicQueryRequest request){
 		validate(request);
 		
 		User authenticatedUser = userManager.login(request.getAuthToken(), null);
 
-		Content content = contentRepository.findById(request.getId());
+		Content content = contentManager.findById(request.getId());
 		if(content == null){
 			throw new SemNetException(ErrorCode.CONTENT_NOT_FOUND);
 		}
@@ -159,7 +156,7 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 		User authenticatedUser = userManager.login(request.getAuthToken(), null);
 		authenticatedUser = userManager.findById(authenticatedUser.getId());
 		
-		Content content = contentRepository.findById(request.getId());
+		Content content = contentManager.findById(request.getId());
 		if(content == null){
 			throw new SemNetException(ErrorCode.CONTENT_NOT_FOUND);
 		}
@@ -183,7 +180,7 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 	public LikeResponse like(BasicQueryRequest request){
 		validate(request);
 		
-		Content content = contentRepository.findById(request.getId());
+		Content content = contentManager.findById(request.getId());
 		if(content == null){
 			throw new SemNetException(ErrorCode.CONTENT_NOT_FOUND);
 		}
@@ -203,7 +200,7 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 		content.setLikeCount(userList.size());
 		content.setLikers(userList);
 		
-		contentRepository.merge(content);
+		contentManager.merge(content);
 		
 		return new LikeResponse(ErrorCode.SUCCESS, content.getLikeCount());
 	}
@@ -212,7 +209,7 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 	public LikeResponse unLike(BasicQueryRequest request){
 		validate(request);
 		
-		Content content = contentRepository.findById(request.getId());
+		Content content = contentManager.findById(request.getId());
 		if(content == null){
 			throw new SemNetException(ErrorCode.CONTENT_NOT_FOUND);
 		}
@@ -224,7 +221,7 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 		if(userList == null || userList.isEmpty()){
 			
 			content.setLikeCount(0);
-			contentRepository.merge(content);
+			contentManager.merge(content);
 						
 		}else if(userList.contains(authenticatedUser.getId())){
 			
@@ -232,7 +229,7 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 			content.setLikeCount(userList.size());
 			content.setLikers(userList);
 			
-			contentRepository.merge(content);
+			contentManager.merge(content);
 		}
 		
 		return new LikeResponse(ErrorCode.SUCCESS, content.getLikeCount());
@@ -242,7 +239,7 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 	public CreateResponse addComment(AddCommentRequest request){
 		validate(request);
 		
-		Content content = contentRepository.findById(request.getContentId());
+		Content content = contentManager.findById(request.getContentId());
 		if(content == null){
 			throw new SemNetException(ErrorCode.CONTENT_NOT_FOUND);
 		}
@@ -264,7 +261,7 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 		
 		content.setComments(commentList);
 		
-		contentRepository.merge(content);
+		contentManager.merge(content);
 		
 		return new CreateResponse(ErrorCode.SUCCESS, comment.getId());
 	}
@@ -273,7 +270,7 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 	public ActionResponse deleteComment(DeleteCommentRequest request){
 		validate(request);
 		
-		Content content = contentRepository.findById(request.getContentId());
+		Content content = contentManager.findById(request.getContentId());
 		if(content == null){
 			throw new SemNetException(ErrorCode.CONTENT_NOT_FOUND);
 		}
@@ -298,7 +295,7 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 		commentList = getDiffCommentList(commentList, comment);
 		content.setComments(commentList);
 		
-		contentRepository.merge(content);
+		contentManager.merge(content);
 		
 		return new ActionResponse(ErrorCode.SUCCESS);
 	}
@@ -306,10 +303,12 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 	private List<Content> getContentList(ListContentRequest request, User authenticatedUser){
 
 		switch (request.getType()) {
+		case LOCATION:
+			return contentManager.findByPositionNear(new Point(request.getLongitude(), request.getLatitude()) , new Distance(100, Metrics.KILOMETERS) );
 		case RECENT:
-			return contentRepository.findLatestContents();
+			return contentManager.findLatestContents();
 		case POPULAR:
-			return contentRepository.findPopularContents();
+			return contentManager.findPopularContents();
 		case SPECIFIED:
 			User user = userManager.findById(request.getUserId());
 
@@ -319,7 +318,7 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 				List<String> contentIdList = user.getContents();
 				
 				for (String contentId : contentIdList) {
-					Content content = contentRepository.findById(contentId);
+					Content content = contentManager.findById(contentId);
 					if(content == null){
 						continue;
 					}
@@ -345,7 +344,7 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 				List<String> contentIdList = f.getContents();
 				
 				for (String contentId : contentIdList) {
-					Content content = contentRepository.findById(contentId);
+					Content content = contentManager.findById(contentId);
 					if(content == null){
 						continue;
 					}
@@ -367,7 +366,7 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 		
 		validate(request);
 		
-		Content content = contentRepository.findById(contentId);
+		Content content = contentManager.findById(contentId);
 		if(content == null){
 			throw new SemNetException(ErrorCode.CONTENT_NOT_FOUND);
 		}
@@ -407,6 +406,13 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 		}
 		return newList;
 	}
+	
+	private double[] mapPosition(double longitude, double latitude){
+		double[] position = new double[2];
+		position[0] = longitude;
+		position[1] = latitude;
+		return position;
+	}
 
 	@Override
 	protected TagService getTagService() {
@@ -415,11 +421,11 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 
 	@Override
 	public TaggedEntity findById(String entityId) {
-		return contentRepository.findById(entityId);
+		return contentManager.findById(entityId);
 	}
 
 	@Override
 	public void save(TaggedEntity entity) {
-		contentRepository.merge((Content)entity);
+		contentManager.merge((Content)entity);
 	}
 }

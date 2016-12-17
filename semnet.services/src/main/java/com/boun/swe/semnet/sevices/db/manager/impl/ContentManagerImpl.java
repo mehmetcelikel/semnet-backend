@@ -7,6 +7,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 
 import com.boun.swe.semnet.sevices.db.manager.ContentManager;
@@ -54,5 +56,9 @@ public class ContentManagerImpl implements ContentManager{
 	@Override
 	public List<Content> findPopularContents() {
 		return contentRepository.findPopularContents();
+	}
+	
+	public List<Content> findByPositionNear(Point point, Distance distance){
+		return contentRepository.findByPositionNear(point, distance);	
 	}
 }

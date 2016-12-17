@@ -16,4 +16,7 @@ public class ListContentRequest extends BaseRequest{
 	
 	@NotNull
 	private String userId;
+	
+	private double latitude;
+	private double longitude;
 }

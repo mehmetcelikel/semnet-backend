@@ -2,6 +2,9 @@ package com.boun.swe.semnet.sevices.db.manager;
 
 import java.util.List;
 
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Point;
+
 import com.boun.swe.semnet.sevices.db.model.Content;
 
 public interface ContentManager {
@@ -15,4 +18,6 @@ public interface ContentManager {
 	public List<Content> findLatestContents();
 
 	public List<Content> findPopularContents();
+	
+	public List<Content> findByPositionNear(Point point, Distance distance);
 }

@@ -5,5 +5,6 @@ public enum ContentListType {
 	POPULAR,
 	FRIEND,
 	SPECIFIED,
-	RECENT
+	RECENT,
+	LOCATION
 }
