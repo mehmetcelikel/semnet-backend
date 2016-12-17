@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.boun.swe.semnet.commons.data.request.BasicSearchRequest;
 import com.boun.swe.semnet.commons.data.request.TagSearchRequest;
+import com.boun.swe.semnet.commons.data.response.ContentListResponse;
 import com.boun.swe.semnet.commons.data.response.QueryLabelResponse;
+import com.boun.swe.semnet.commons.data.response.UserListResponse;
 import com.boun.swe.semnet.commons.exception.SemNetException;
 import com.boun.swe.semnet.sevices.data.SemanticSearchResponse;
 import com.boun.swe.semnet.sevices.service.SemanticSearchService;
@@ -62,19 +64,35 @@ public class SearchController {
     	}
     }
     
-    @ApiOperation(value="Semantic Search")
-    @RequestMapping(value="search", method = RequestMethod.POST)
+    @ApiOperation(value="Semantic Search Content")
+    @RequestMapping(value="searchContent", method = RequestMethod.POST)
     @ApiResponses(value={@ApiResponse(code=200, message = "Success")})
-    public @ResponseBody SemanticSearchResponse search(@RequestBody TagSearchRequest request){
+    public @ResponseBody ContentListResponse searchContent(@RequestBody TagSearchRequest request){
     	
     	try{
-    		return searchService.search(request);	
+    		return searchService.searchContent(request);	
     		
     	}catch (SemNetException e) {
     		
-    		logger.error("Error occured while running search service, code->" + e.getErrorCode());
+    		logger.error("Error occured while running searchContent service, code->" + e.getErrorCode());
 			
-    		return new SemanticSearchResponse(e.getErrorCode(), e.getErrors());
+    		return new ContentListResponse(e.getErrorCode(), e.getErrors());
+    	}
+    }
+    
+    @ApiOperation(value="Semantic Search User")
+    @RequestMapping(value="searchUser", method = RequestMethod.POST)
+    @ApiResponses(value={@ApiResponse(code=200, message = "Success")})
+    public @ResponseBody UserListResponse searchUser(@RequestBody TagSearchRequest request){
+    	
+    	try{
+    		return searchService.searchUser(request);	
+    		
+    	}catch (SemNetException e) {
+    		
+    		logger.error("Error occured while running searchUser service, code->" + e.getErrorCode());
+			
+    		return new UserListResponse(e.getErrorCode(), e.getErrors());
     	}
     }
 }

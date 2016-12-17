@@ -3,6 +3,7 @@ package com.boun.swe.semnet.commons.data.response;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.boun.swe.semnet.commons.data.TagData;
 import com.boun.swe.semnet.commons.type.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -25,10 +26,17 @@ public class UserListResponse extends ActionResponse {
 		setErrors(errors);
 	}
 	
-	public void addUser(String id, String username, String firstname, String lastname){
+	public void addUser(String id, String username, String firstname, String lastname, List<TagData> tagList){
 		if(userList == null){
 			userList = new ArrayList<UserObj>();
 		}
-		userList.add(new UserObj(id, username, firstname, lastname));
+		userList.add(new UserObj(id, username, firstname, lastname, tagList));
+	}
+	
+	public void addUser(String id, String username, String firstname, String lastname, List<TagData> tagList, float rank){
+		if(userList == null){
+			userList = new ArrayList<UserObj>();
+		}
+		userList.add(new UserObj(id, username, firstname, lastname, tagList, rank));
 	}
 }

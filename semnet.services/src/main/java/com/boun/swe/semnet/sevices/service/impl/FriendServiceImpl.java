@@ -147,8 +147,7 @@ public class FriendServiceImpl extends BaseService implements FriendService{
 			
 			User friend = userManager.findById(friendship.getUserId());
 			
-			response.addUser(friend.getId(), friend.getUsername(), friend.getFirstname(), friend.getLastname());
-			
+			response.addUser(friend.getId(), friend.getUsername(), friend.getFirstname(), friend.getLastname(), friend.getTagList());
 		}
 		
 		return response;

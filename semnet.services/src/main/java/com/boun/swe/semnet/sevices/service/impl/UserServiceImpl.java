@@ -95,7 +95,7 @@ public class UserServiceImpl extends BaseTaggedService implements UserService {
 		
 		UserListResponse response = new UserListResponse(ErrorCode.SUCCESS);
 		for (User user : userlist) {
-			response.addUser(user.getId(), user.getUsername(), user.getFirstname(), user.getLastname());
+			response.addUser(user.getId(), user.getUsername(), user.getFirstname(), user.getLastname(), user.getTagList());
 		}
 		
 		return response;
@@ -114,7 +114,7 @@ public class UserServiceImpl extends BaseTaggedService implements UserService {
 		}
 		
 		for (User user : userlist) {
-			response.addUser(user.getId(), user.getUsername(), user.getFirstname(), user.getLastname());
+			response.addUser(user.getId(), user.getUsername(), user.getFirstname(), user.getLastname(), user.getTagList());
 		}
 		
 		return response;

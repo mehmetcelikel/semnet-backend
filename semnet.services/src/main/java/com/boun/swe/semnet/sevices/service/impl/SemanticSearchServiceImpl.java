@@ -20,16 +20,20 @@ import com.boun.swe.semnet.commons.constants.AppConstants;
 import com.boun.swe.semnet.commons.data.TagData;
 import com.boun.swe.semnet.commons.data.request.BasicSearchRequest;
 import com.boun.swe.semnet.commons.data.request.TagSearchRequest;
+import com.boun.swe.semnet.commons.data.response.ContentListResponse;
+import com.boun.swe.semnet.commons.data.response.ContentObj;
 import com.boun.swe.semnet.commons.data.response.QueryLabelResponse;
+import com.boun.swe.semnet.commons.data.response.UserListResponse;
 import com.boun.swe.semnet.commons.dbpedia.OWLClassHierarchy;
 import com.boun.swe.semnet.commons.dbpedia.SPARQLRunner;
 import com.boun.swe.semnet.commons.exception.SemNetException;
 import com.boun.swe.semnet.commons.type.ErrorCode;
 import com.boun.swe.semnet.sevices.cache.TagCache;
 import com.boun.swe.semnet.sevices.cache.TagCache.TaggedEntityMetaData;
-import com.boun.swe.semnet.sevices.data.SemanticSearchResponse;
+import com.boun.swe.semnet.sevices.db.model.Content;
 import com.boun.swe.semnet.sevices.db.model.TaggedEntity;
 import com.boun.swe.semnet.sevices.db.model.TaggedEntity.EntityType;
+import com.boun.swe.semnet.sevices.db.model.User;
 import com.boun.swe.semnet.sevices.service.BaseService;
 import com.boun.swe.semnet.sevices.service.SemanticSearchService;
 import com.boun.swe.semnet.sevices.service.TagService;
@@ -79,10 +83,66 @@ public class SemanticSearchServiceImpl extends BaseService implements SemanticSe
 	}
 	
 	@Override
-	public SemanticSearchResponse search(TagSearchRequest request){
+	public ContentListResponse searchContent(TagSearchRequest request){
 		
-		SemanticSearchResponse response = new SemanticSearchResponse();
+		ContentListResponse response = new ContentListResponse(ErrorCode.SUCCESS);
 		
+		List<SemanticSearchIndex> searchIndex = filterTags(request);
+		if(searchIndex.isEmpty()){
+			return response;
+		}
+		
+		Collections.sort(searchIndex, new SemanticSearchIndexSort());
+		
+		for (SemanticSearchIndex index : searchIndex) {
+			List<TaggedEntityMetaData> tagEntityIdList = TagCache.getInstance(tagService).getTag(index.getTag());
+			
+			if(tagEntityIdList == null || tagEntityIdList.isEmpty()){
+				continue;
+			}
+			
+			for (TaggedEntityMetaData taggedEntityMetaData : tagEntityIdList) {
+				if(!taggedEntityMetaData.getType().equals(EntityType.CONTENT)){
+					continue;
+				}
+				addContentResultList(response, taggedEntityMetaData.getId(), index.getSimilarityIndex());
+			}
+		}
+
+		return response;
+	}
+	
+	@Override
+	public UserListResponse searchUser(TagSearchRequest request){
+		
+		UserListResponse response = new UserListResponse(ErrorCode.SUCCESS);
+		
+		List<SemanticSearchIndex> searchIndex = filterTags(request);
+		if(searchIndex.isEmpty()){
+			return response;
+		}
+		
+		Collections.sort(searchIndex, new SemanticSearchIndexSort());
+		
+		for (SemanticSearchIndex index : searchIndex) {
+			List<TaggedEntityMetaData> tagEntityIdList = TagCache.getInstance(tagService).getTag(index.getTag());
+			
+			if(tagEntityIdList == null || tagEntityIdList.isEmpty()){
+				continue;
+			}
+			
+			for (TaggedEntityMetaData taggedEntityMetaData : tagEntityIdList) {
+				if(!taggedEntityMetaData.getType().equals(EntityType.USER)){
+					continue;
+				}
+				addUserResultList(response, taggedEntityMetaData.getId(), index.getSimilarityIndex());
+			}
+		}
+
+		return response;
+	}
+	
+	private List<SemanticSearchIndex> filterTags(TagSearchRequest request){
 		TagData tagData = request.getTagData();
 		if(tagData == null){
 			throw new SemNetException(ErrorCode.INVALID_INPUT);
@@ -151,37 +211,22 @@ public class SemanticSearchServiceImpl extends BaseService implements SemanticSe
 				}
 			}
 		}
-		
-		if(searchIndex.isEmpty()){
-			return response;
-		}
-		
-		Collections.sort(searchIndex, new SemanticSearchIndexSort());
-		
-		for (SemanticSearchIndex index : searchIndex) {
-			List<TaggedEntityMetaData> tagEntityIdList = TagCache.getInstance(tagService).getTag(index.getTag());
-			
-			if(tagEntityIdList == null || tagEntityIdList.isEmpty()){
-				continue;
-			}
-			
-			for (TaggedEntityMetaData taggedEntityMetaData : tagEntityIdList) {
-				addResultList(response, taggedEntityMetaData.getType(), taggedEntityMetaData.getId(), index.getSimilarityIndex());
-			}
-		}
-
-		return response;
+		return searchIndex;
 	}
 	
-	private void addResultList(SemanticSearchResponse response, EntityType type, String id, float rank){
+	private void addContentResultList(ContentListResponse response, String id, float rank){
 		
-		response.addDetail(type, id, rank, true);
+		Content content = contentManager.findById(id);
+		if(content == null){
+			return;
+		}
+		
+		addContent(response, content, rank);
 		
 		if(rank > AppConstants.SEMANTIC_INDEX_LIMIT){
-			TaggedEntity taggedEntity = resolveEntity(type, id);
 			
 			//If rank is higher than given amount, resolve tag relations of that entity
-			for (TagData tagData : taggedEntity.getTagList()) {
+			for (TagData tagData : content.getTagList()) {
 				
 				List<TaggedEntityMetaData> tagEntityIdList = TagCache.getInstance(tagService).getTag(tagData);
 				if(tagEntityIdList == null || tagEntityIdList.isEmpty()){
@@ -189,15 +234,84 @@ public class SemanticSearchServiceImpl extends BaseService implements SemanticSe
 				}
 				
 				for (TaggedEntityMetaData taggedEntityMetaData : tagEntityIdList) {
-					TaggedEntity entity = resolveEntity(taggedEntityMetaData.getType(), taggedEntityMetaData.getId());
-					if(entity == null){
+					
+					if(!taggedEntityMetaData.getType().equals(EntityType.CONTENT)){
 						continue;
 					}
 					
-					response.addDetail(entity.getEntityType(), entity.getId(), AppConstants.SEMANTIC_INDEX_LIMIT, false);
+					Content entity = contentManager.findById(id);
+					if(entity == null){
+						continue;
+					}
+					addContent(response, entity, AppConstants.SEMANTIC_INDEX_LIMIT);
 				}
 			}
 		}
+	}
+	
+	private void addUserResultList(UserListResponse response, String id, float rank){
+		
+		User user = userManager.findById(id);
+		if(user == null){
+			return;
+		}
+		
+		addUser(response, user, rank);
+		
+		if(rank > AppConstants.SEMANTIC_INDEX_LIMIT){
+			
+			//If rank is higher than given amount, resolve tag relations of that entity
+			for (TagData tagData : user.getTagList()) {
+				
+				List<TaggedEntityMetaData> tagEntityIdList = TagCache.getInstance(tagService).getTag(tagData);
+				if(tagEntityIdList == null || tagEntityIdList.isEmpty()){
+					continue;
+				}
+				
+				for (TaggedEntityMetaData taggedEntityMetaData : tagEntityIdList) {
+					
+					if(!taggedEntityMetaData.getType().equals(EntityType.CONTENT)){
+						continue;
+					}
+					
+					User entity = userManager.findById(id);
+					if(entity == null){
+						continue;
+					}
+					addUser(response, entity, AppConstants.SEMANTIC_INDEX_LIMIT);
+				}
+			}
+		}
+	}
+	
+	private void addContent(ContentListResponse resp, Content content, float rank){
+		if(content == null){
+			return;
+		}
+		User owner = userManager.findById(content.getOwnerId());
+		
+		ContentObj obj = new ContentObj(content.getId(), content.getDescription(), content.getCreationDate(), owner.getId(), owner.getUsername(), content.isHasImage(), content.getLikeCount(), rank);
+		
+		if(content.getLikers() != null && !content.getLikers().isEmpty()){
+			for (String likerId : content.getLikers()) {
+				User liker = userManager.findById(likerId);
+				if(liker == null){
+					continue;
+				}
+				obj.addToLikerList(liker.getId(), liker.getUsername());
+			}
+		}
+		obj.setTagList(content.getTagList());
+		
+		resp.addContent(obj);
+	}
+	
+	private void addUser(UserListResponse response, User user, float rank){
+		if(user == null){
+			return;
+		}
+		
+		response.addUser(user.getId(), user.getUsername(), user.getFirstname(), user.getLastname(), user.getTagList(), rank);
 	}
 	
 	public TaggedEntity resolveEntity(EntityType type, String id){
