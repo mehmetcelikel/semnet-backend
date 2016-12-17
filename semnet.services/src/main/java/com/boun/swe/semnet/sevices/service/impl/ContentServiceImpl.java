@@ -58,7 +58,7 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 		content.setCreationDate(new Date());
 		content.setOwnerId(authenticatedUser.getId());
 		content.setHasImage(request.isHasImage());
-		
+		content.setPosition(mapPosition(request.getLongitude(), request.getLatitude()));
 		contentRepository.merge(content);
 		
 		authenticatedUser.getContents().add(content.getId());
@@ -68,6 +68,12 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 		return new CreateResponse(ErrorCode.SUCCESS, content.getId());
 	}
 	
+	private double[] mapPosition(double longitude, double latitude){
+		double[] position = new double[2];
+		position[1] = longitude;
+		position[1] = latitude;
+		return position;
+	}
 	@Override
 	public GetContentResponse get(BasicQueryRequest request){
 		validate(request);

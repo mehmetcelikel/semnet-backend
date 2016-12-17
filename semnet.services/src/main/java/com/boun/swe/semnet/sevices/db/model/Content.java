@@ -32,6 +32,8 @@ public class Content extends TaggedEntity{
 	
 	private List<Comment> comments;
 	
+	private double[] position;
+	
 	public Content(){
 		super(EntityType.CONTENT);
 	}

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.index.GeospatialIndex;
 import org.springframework.data.mongodb.core.query.Query;
 
 import com.boun.swe.semnet.sevices.db.model.Content;
@@ -14,6 +15,10 @@ public class ContentRepositoryImpl implements ContentRepositoryCustom {
 
     @Autowired private MongoTemplate mongoTemplate;
 
+    public ContentRepositoryImpl() {
+    	mongoTemplate.indexOps(Content.class).ensureIndex( new GeospatialIndex("position") );
+	}
+    
 	@Override
 	public Content findById(String contentId) {
     	

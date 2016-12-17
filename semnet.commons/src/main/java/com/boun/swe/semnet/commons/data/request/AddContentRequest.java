@@ -9,4 +9,7 @@ public class AddContentRequest extends BaseRequest{
 	
 	private String description;
 	private boolean hasImage;
+	
+	private double latitude;
+	private double longitude;
 }
