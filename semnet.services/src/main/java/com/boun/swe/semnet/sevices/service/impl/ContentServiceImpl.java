@@ -27,6 +27,7 @@ import com.boun.swe.semnet.commons.data.response.CreateResponse;
 import com.boun.swe.semnet.commons.data.response.GetContentResponse;
 import com.boun.swe.semnet.commons.data.response.LikeResponse;
 import com.boun.swe.semnet.commons.exception.SemNetException;
+import com.boun.swe.semnet.commons.type.ContentListType;
 import com.boun.swe.semnet.commons.type.ErrorCode;
 import com.boun.swe.semnet.commons.util.KeyUtils;
 import com.boun.swe.semnet.sevices.db.manager.ContentManager;
@@ -118,6 +119,8 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 		
 		User authenticatedUser = userManager.login(request.getAuthToken(), null);
 		authenticatedUser = userManager.findById(authenticatedUser.getId());
+		
+		resp.setSortByLikeCount(request.getType().equals(ContentListType.POPULAR));
 		
 		List<Content> contentList = getContentList(request, authenticatedUser);
 		if(contentList == null || contentList.isEmpty()){
@@ -308,7 +311,7 @@ public class ContentServiceImpl extends BaseTaggedService implements ContentServ
 		case RECENT:
 			return contentManager.findLatestContents();
 		case POPULAR:
-			return contentManager.findPopularContents();
+			return contentManager.findAll();
 		case SPECIFIED:
 			User user = userManager.findById(request.getUserId());
 

@@ -13,7 +13,6 @@ public interface ContentRepositoryCustom {
 	void remove(Content content);
 	
 	List<Content> findLatestContents();
-	List<Content> findPopularContents();
 	
 	void geoSpatialIndex();
 }

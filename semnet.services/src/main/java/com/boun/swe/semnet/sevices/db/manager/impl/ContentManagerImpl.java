@@ -54,8 +54,8 @@ public class ContentManagerImpl implements ContentManager{
 	}
 
 	@Override
-	public List<Content> findPopularContents() {
-		return contentRepository.findPopularContents();
+	public List<Content> findAll() {
+		return contentRepository.findAll();
 	}
 	
 	public List<Content> findByPositionNear(Point point, Distance distance){

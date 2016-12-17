@@ -10,14 +10,14 @@ import com.boun.swe.semnet.sevices.db.model.Content;
 public interface ContentManager {
 
 	public Content findById(String contentId);
+	
+	public List<Content> findAll();
 
 	public Content merge(Content content);
 
 	public void delete(Content content);
 
 	public List<Content> findLatestContents();
-
-	public List<Content> findPopularContents();
 	
 	public List<Content> findByPositionNear(Point point, Distance distance);
 }

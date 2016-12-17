@@ -48,12 +48,4 @@ public class ContentRepositoryImpl implements ContentRepositoryCustom {
 
 		return mongoTemplate.find(query, Content.class);
 	}
-	
-	@Override
-	public List<Content> findPopularContents() {
-		Query query = new Query();
-		query.with(new Sort(Sort.Direction.DESC, "likeCount"));
-
-		return mongoTemplate.find(query, Content.class);
-	}
 }

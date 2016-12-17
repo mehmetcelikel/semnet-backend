@@ -6,8 +6,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import org.mortbay.log.Log;
-
 import com.boun.swe.semnet.commons.type.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -24,6 +22,9 @@ public class ContentListResponse extends ActionResponse {
 	
 	@JsonIgnore
 	private boolean sortByRank;
+	
+	@JsonIgnore
+	private boolean sortByLikeCount;
 	
 	public ContentListResponse(ErrorCode code){
 		super(code);
@@ -54,7 +55,9 @@ public class ContentListResponse extends ActionResponse {
 		}
 		
 		if(sortByRank){
-			Collections.sort(contentList, new ContentSort());	
+			Collections.sort(contentList, new ContentSort());
+		}else if(sortByLikeCount){
+			Collections.sort(contentList, new ContentLikeCountSort());
 		}else{
 			Collections.sort(contentList, new ContentSortByDate());
 		}
@@ -67,6 +70,14 @@ public class ContentListResponse extends ActionResponse {
 	    @Override
 	    public int compare(ContentObj o1, ContentObj o2) {
 	    	return (o1.getRank() >= o2.getRank()) ? -1 : 1;
+	    }
+	}
+	
+	private static class ContentLikeCountSort implements Comparator<ContentObj> {
+
+	    @Override
+	    public int compare(ContentObj o1, ContentObj o2) {
+	    	return (o1.getLikeCount() >= o2.getLikeCount()) ? -1 : 1;
 	    }
 	}
 	
