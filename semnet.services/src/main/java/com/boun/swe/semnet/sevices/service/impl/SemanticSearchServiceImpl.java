@@ -9,7 +9,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import org.mortbay.log.Log;
 import org.simmetrics.StringMetric;
 import org.simmetrics.metrics.CosineSimilarity;
 import org.simmetrics.simplifiers.Simplifiers;
@@ -87,6 +86,7 @@ public class SemanticSearchServiceImpl extends BaseService implements SemanticSe
 	public ContentListResponse searchContent(TagSearchRequest request){
 		
 		ContentListResponse response = new ContentListResponse(ErrorCode.SUCCESS);
+		response.setSortByRank(true);
 		
 		List<SemanticSearchIndex> searchIndex = filterTags(request);
 		if(searchIndex.isEmpty()){
@@ -303,8 +303,6 @@ public class SemanticSearchServiceImpl extends BaseService implements SemanticSe
 			}
 		}
 		obj.setTagList(content.getTagList());
-		
-		Log.info(content.getDescription() + " rank is->" + rank);
 		
 		resp.addContent(obj);
 	}
