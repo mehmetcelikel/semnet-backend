@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import com.boun.swe.semnet.commons.constants.AppConstants;
 import com.boun.swe.semnet.commons.data.TagData;
+import com.boun.swe.semnet.commons.data.request.BaseRequest;
 import com.boun.swe.semnet.commons.data.request.BasicSearchRequest;
 import com.boun.swe.semnet.commons.data.request.TagSearchRequest;
 import com.boun.swe.semnet.commons.data.response.ContentListResponse;
@@ -67,13 +68,13 @@ public class SemanticSearchServiceImpl extends BaseService implements SemanticSe
 	public QueryLabelResponse querySearchString(BasicSearchRequest request) {
 		
 		validate(request);
+
+		QueryLabelResponse response = new QueryLabelResponse(request.getQueryString());
 		
 		List<TagData> tagDataList = TagCache.getInstance(tagService).getAllTags();
 		if(tagDataList == null){
-			throw new SemNetException(ErrorCode.TAG_NOT_FOUND, "");
+			return response;
 		}
-		
-		QueryLabelResponse response = new QueryLabelResponse(request.getQueryString());
 		
 		for (TagData tagData : tagDataList) {
 			float result = getSimilarityIndex(tagData.getTag(), request.getQueryString());
@@ -116,6 +117,27 @@ public class SemanticSearchServiceImpl extends BaseService implements SemanticSe
 			}
 		}
 
+		return response;
+	}
+	
+	public QueryLabelResponse getAllTags(BaseRequest request){
+		
+		validate(request);
+		
+		QueryLabelResponse response = new QueryLabelResponse("");
+		
+		List<TagData> tagDataList = TagCache.getInstance(tagService).getAllTags();
+		if(tagDataList == null){
+			throw new SemNetException(ErrorCode.TAG_NOT_FOUND, "");
+		}
+		
+		for (TagData index : tagDataList) {
+			List<TaggedEntityMetaData> tagEntityIdList = TagCache.getInstance(tagService).getTag(index);
+			long count = tagEntityIdList == null ? 0 : tagEntityIdList.size();
+			
+			response.addData(index.getTag(), index.getClazz(), count);
+		}
+		
 		return response;
 	}
 	

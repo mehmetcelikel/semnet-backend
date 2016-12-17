@@ -33,11 +33,11 @@ public class QueryLabelResponse extends ActionResponse{
 		this.queryString = queryString;
 	}
 	
-	public void addData(String label, String clazz, String description){
+	public void addData(String label, String clazz, Long count){
 		if(dataList == null){
 			dataList = new ArrayList<DataObj>();
 		}
-		DataObj obj = new DataObj(label, clazz, description);
+		DataObj obj = new DataObj(label, clazz, count);
 		
 		if(!dataList.contains(obj)){
 			dataList.add(obj);			
@@ -54,12 +54,12 @@ public class QueryLabelResponse extends ActionResponse{
 		
 		private String label;
 		private String clazz;
-		private String description;
+		private long count;
 		
-		private DataObj(String label, String clazz, String description){
+		private DataObj(String label, String clazz, Long count){
 			this.label = label;
 			this.clazz = clazz;
-//			this.description = description; 
+			this.count = count == null ? 0 : count.longValue();
 		}
 
 		@Override

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.boun.swe.semnet.commons.data.request.BaseRequest;
 import com.boun.swe.semnet.commons.data.request.BasicSearchRequest;
 import com.boun.swe.semnet.commons.data.request.TagSearchRequest;
 import com.boun.swe.semnet.commons.data.response.ContentListResponse;
@@ -42,6 +43,22 @@ public class SearchController {
     	}catch (SemNetException e) {
     		
     		logger.error("Error occured while running queryLabel service, code->" + e.getErrorCode());
+			
+    		return new QueryLabelResponse(e.getErrorCode(), e.getErrors());
+    	}
+    }
+    
+    @ApiOperation(value="Query All Tags")
+    @RequestMapping(value="queryAllTags", method = RequestMethod.POST)
+    @ApiResponses(value={@ApiResponse(code=200, message = "Success")})
+    public @ResponseBody QueryLabelResponse queryAllTags(@RequestBody BaseRequest request){
+    	
+    	try{
+    		return searchService.getAllTags(request);	
+    		
+    	}catch (SemNetException e) {
+    		
+    		logger.error("Error occured while running queryAllTags service, code->" + e.getErrorCode());
 			
     		return new QueryLabelResponse(e.getErrorCode(), e.getErrors());
     	}
